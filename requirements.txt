@@ -1,0 +1,13 @@
+Create a login page
+Create a registration page
+Create a dashboard page
+Create a logout page
+Create a student management page
+Create a teacher management page
+Create a course management page
+Create a batch management page
+Create a attendance management page
+Create a fee management page
+Create a report management page
+
+Use Python for the backend and use react for the frontend

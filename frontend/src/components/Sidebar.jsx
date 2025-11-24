@@ -1,0 +1,54 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './Sidebar.css';
+
+const Sidebar = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const menuItems = [
+        { path: '/dashboard', icon: '📊', label: 'Dashboard' },
+        { path: '/students', icon: '👨‍🎓', label: 'Students' },
+        { path: '/teachers', icon: '👨‍🏫', label: 'Teachers' },
+        { path: '/courses', icon: '📚', label: 'Courses' },
+        { path: '/batches', icon: '🎓', label: 'Batches' },
+        { path: '/attendance', icon: '✓', label: 'Attendance' },
+        { path: '/fees', icon: '💰', label: 'Fees' },
+        { path: '/reports', icon: '📈', label: 'Reports' },
+    ];
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    return (
+        <div className="sidebar">
+            <div className="sidebar-header">
+                <h2 className="sidebar-logo">🎓 EduManage</h2>
+            </div>
+
+            <nav className="sidebar-nav">
+                {menuItems.map((item) => (
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
+                    >
+                        <span className="sidebar-icon">{item.icon}</span>
+                        <span className="sidebar-label">{item.label}</span>
+                    </Link>
+                ))}
+            </nav>
+
+            <div className="sidebar-footer">
+                <button onClick={handleLogout} className="btn btn-secondary" style={{ width: '100%' }}>
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default Sidebar;
