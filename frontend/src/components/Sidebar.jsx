@@ -16,10 +16,12 @@ const Sidebar = () => {
         { path: '/teachers', icon: '👨‍🏫', label: 'Teachers' },
         { path: '/courses', icon: '📚', label: 'Courses' },
         { path: '/batches', icon: '🎓', label: 'Batches' },
+        { path: '/marks', icon: '📝', label: 'Marks' },
         { path: '/attendance', icon: '✓', label: 'Attendance' },
         { path: '/fees', icon: '💰', label: 'Fees' },
         { path: '/reports', icon: '📈', label: 'Reports' },
     ];
+
 
     const handleLogout = () => {
         logout();

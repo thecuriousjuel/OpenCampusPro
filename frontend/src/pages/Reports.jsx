@@ -8,11 +8,43 @@ const Reports = () => {
     const [attendanceReport, setAttendanceReport] = useState(null);
     const [feesReport, setFeesReport] = useState(null);
     const [studentsReport, setStudentsReport] = useState(null);
+    const [marksReport, setMarksReport] = useState(null);
+    const [batches, setBatches] = useState([]);
+    const [selectedBatch, setSelectedBatch] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchReport();
+        fetchBatches();
     }, [reportType]);
+
+    const fetchBatches = async () => {
+        try {
+            const response = await fetch(`${API_URL}/batches?per_page=1000`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            setBatches(data.batches || []);
+        } catch (error) {
+            console.error('Error fetching batches:', error);
+        }
+    };
+
+    const fetchMarksAnalytics = async (batchId = '') => {
+        try {
+            let url = `${API_URL}/marks/analytics`;
+            if (batchId) {
+                url += `?batch_id=${batchId}`;
+            }
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            setMarksReport(data);
+        } catch (error) {
+            console.error('Error fetching marks analytics:', error);
+        }
+    };
 
     const fetchReport = async () => {
         setLoading(true);
@@ -41,6 +73,8 @@ const Reports = () => {
                 });
                 const data = await response.json();
                 setStudentsReport(data);
+            } else if (reportType === 'marks') {
+                await fetchMarksAnalytics();
             }
         } catch (error) {
             console.error('Error:', error);
@@ -64,6 +98,8 @@ const Reports = () => {
                         onClick={() => setReportType('fees')}>💰 Fees Report</button>
                     <button className={`btn ${reportType === 'students' ? 'btn-primary' : 'btn-secondary'}`}
                         onClick={() => setReportType('students')}>👨‍🎓 Students Report</button>
+                    <button className={`btn ${reportType === 'marks' ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => setReportType('marks')}>📝 Marks Analytics</button>
                 </div>
             </div>
 
@@ -175,6 +211,63 @@ const Reports = () => {
                                 <div className="card">
                                     <h3 className="text-info">{studentsReport.graduated || 0}</h3>
                                     <p>Graduated</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {reportType === 'marks' && marksReport && (
+                        <div className="card">
+                            <h2 className="card-header">Marks Analytics</h2>
+
+                            {/* Batch Filter */}
+                            <div className="mb-lg">
+                                <label className="form-label">Filter by Batch (Optional)</label>
+                                <select
+                                    className="form-select"
+                                    style={{ maxWidth: '400px' }}
+                                    value={selectedBatch}
+                                    onChange={(e) => {
+                                        setSelectedBatch(e.target.value);
+                                        fetchMarksAnalytics(e.target.value);
+                                    }}
+                                >
+                                    <option value="">All Batches</option>
+                                    {batches.map(batch => (
+                                        <option key={batch.id} value={batch.id}>
+                                            {batch.name} - {batch.course_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Analytics Cards */}
+                            <div className="dashboard-grid">
+                                <div className="card">
+                                    <h3 className="text-primary">{marksReport.total_students || 0}</h3>
+                                    <p>Total Students</p>
+                                </div>
+                                <div className="card">
+                                    <h3 className="text-success">{marksReport.passed || 0}</h3>
+                                    <p>Passed (≥40)</p>
+                                    <p className="text-sm text-muted">
+                                        {marksReport.total_students > 0
+                                            ? Math.round((marksReport.passed / marksReport.total_students) * 100)
+                                            : 0}% pass rate
+                                    </p>
+                                </div>
+                                <div className="card">
+                                    <h3 className="text-danger">{marksReport.failed || 0}</h3>
+                                    <p>Failed (&lt;40)</p>
+                                    <p className="text-sm text-muted">
+                                        {marksReport.total_students > 0
+                                            ? Math.round((marksReport.failed / marksReport.total_students) * 100)
+                                            : 0}% fail rate
+                                    </p>
+                                </div>
+                                <div className="card">
+                                    <h3 className="text-info">{marksReport.median_marks || 0}</h3>
+                                    <p>Median Marks</p>
                                 </div>
                             </div>
                         </div>

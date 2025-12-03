@@ -43,6 +43,7 @@ class Student(db.Model):
     # Relationships
     attendance_records = db.relationship('Attendance', backref='student', lazy=True, cascade='all, delete-orphan')
     fee_records = db.relationship('Fee', backref='student', lazy=True, cascade='all, delete-orphan')
+    marks = db.relationship('Mark', backref='student', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
@@ -114,6 +115,7 @@ class Batch(db.Model):
     
     # Relationships
     attendance_records = db.relationship('Attendance', backref='batch', lazy=True, cascade='all, delete-orphan')
+    marks = db.relationship('Mark', backref='batch', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
@@ -169,4 +171,28 @@ class Fee(db.Model):
             'paid_date': self.paid_date.isoformat() if self.paid_date else None,
             'status': self.status,
             'description': self.description
+        }
+
+class Mark(db.Model):
+    __tablename__ = 'marks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id'), nullable=False)
+    marks_obtained = db.Column(db.Float, nullable=False)  # 0-100
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'student_id': self.student_id,
+            'student_name': self.student.name if self.student else None,
+            'batch_id': self.batch_id,
+            'batch_name': self.batch.name if self.batch else None,
+            'course_name': self.batch.course.name if self.batch and self.batch.course else None,
+            'marks_obtained': self.marks_obtained,
+            'status': 'PASSED' if self.marks_obtained >= 40 else 'FAILED',
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

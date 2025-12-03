@@ -10,6 +10,7 @@ import Students from './pages/Students';
 import Teachers from './pages/Teachers';
 import Courses from './pages/Courses';
 import Batches from './pages/Batches';
+import Marks from './pages/Marks';
 import Attendance from './pages/Attendance';
 import Fees from './pages/Fees';
 import Reports from './pages/Reports';
@@ -97,6 +98,16 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                       <Batches />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/marks"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Marks />
                     </Layout>
                   </ProtectedRoute>
                 }

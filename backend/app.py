@@ -20,7 +20,7 @@ db.init_app(app)
 jwt = JWTManager(app)
 
 # Import routes
-from routes import auth, students, teachers, courses, batches, attendance, fees, reports
+from routes import auth, students, teachers, courses, batches, attendance, fees, reports, marks
 
 # Register blueprints
 app.register_blueprint(auth.bp)
@@ -31,6 +31,7 @@ app.register_blueprint(batches.bp)
 app.register_blueprint(attendance.bp)
 app.register_blueprint(fees.bp)
 app.register_blueprint(reports.bp)
+app.register_blueprint(marks.bp)
 
 # Create database tables
 with app.app_context():
