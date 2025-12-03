@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add parent directory to path to import from backend
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from app import app, db
 from models import User, Student, Teacher, Course, Batch, Attendance, Fee, Mark
 from datetime import datetime, timedelta

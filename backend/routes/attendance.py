@@ -10,9 +10,12 @@ bp = Blueprint('attendance', __name__, url_prefix='/api/attendance')
 @jwt_required()
 def get_attendance():
     """Get attendance records with filters"""
+    from flask import current_app
     batch_id = request.args.get('batch_id', type=int)
     student_id = request.args.get('student_id', type=int)
     date = request.args.get('date')
+    
+    current_app.logger.info(f"Fetching attendance - Batch ID: {batch_id}, Student ID: {student_id}, Date: {date}")
     
     query = Attendance.query
     
@@ -37,9 +40,13 @@ def get_attendance():
 @jwt_required()
 def mark_attendance():
     """Mark attendance for students"""
+    from flask import current_app
     data = request.get_json()
     
+    current_app.logger.info(f"Marking attendance for {len(data.get('records', []))} record(s)")
+    
     if not data or not data.get('records'):
+        current_app.logger.warning("Attendance marking failed: Missing attendance records")
         return jsonify({'error': 'Missing attendance records'}), 400
     
     try:
@@ -82,21 +89,27 @@ def mark_attendance():
         
         db.session.commit()
         
+        current_app.logger.info(f"Attendance marked successfully: {len(created_records)} record(s) processed")
+        
         return jsonify({
             'message': 'Attendance marked successfully',
             'attendance': [record.to_dict() for record in created_records]
         }), 201
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error marking attendance: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/student/<int:student_id>', methods=['GET'])
 @jwt_required()
 def get_student_attendance(student_id):
     """Get attendance history for a student"""
+    from flask import current_app
+    current_app.logger.info(f"Fetching attendance history for student ID: {student_id}")
     student = Student.query.get(student_id)
     
     if not student:
+        current_app.logger.warning(f"Student not found for attendance query: ID {student_id}")
         return jsonify({'error': 'Student not found'}), 404
     
     records = Attendance.query.filter_by(student_id=student_id).all()
@@ -125,9 +138,12 @@ def get_student_attendance(student_id):
 @jwt_required()
 def get_batch_attendance(batch_id):
     """Get attendance for a batch"""
+    from flask import current_app
+    current_app.logger.info(f"Fetching attendance for batch ID: {batch_id}")
     batch = Batch.query.get(batch_id)
     
     if not batch:
+        current_app.logger.warning(f"Batch not found for attendance query: ID {batch_id}")
         return jsonify({'error': 'Batch not found'}), 404
     
     date_param = request.args.get('date')

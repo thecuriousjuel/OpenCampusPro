@@ -19,6 +19,10 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 db.init_app(app)
 jwt = JWTManager(app)
 
+# Setup logging
+from utils.logger import setup_logging
+logger = setup_logging(app)
+
 # Import routes
 from routes import auth, students, teachers, courses, batches, attendance, fees, reports, marks
 
@@ -36,7 +40,7 @@ app.register_blueprint(marks.bp)
 # Create database tables
 with app.app_context():
     db.create_all()
-    print("Database tables created successfully!")
+    logger.info("Database tables created successfully!")
 
 @app.route('/')
 def index():
@@ -51,4 +55,5 @@ def health():
     return jsonify({'status': 'healthy'})
 
 if __name__ == '__main__':
+    logger.info('Starting Flask development server on http://0.0.0.0:5001')
     app.run(debug=True, host='0.0.0.0', port=5001)

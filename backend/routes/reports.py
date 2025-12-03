@@ -10,6 +10,8 @@ bp = Blueprint('reports', __name__, url_prefix='/api/reports')
 @jwt_required()
 def get_dashboard_stats():
     """Get dashboard statistics"""
+    from flask import current_app
+    current_app.logger.info("Fetching dashboard statistics")
     total_students = Student.query.count()
     active_students = Student.query.filter_by(status='active').count()
     total_teachers = Teacher.query.count()
@@ -61,9 +63,12 @@ def get_dashboard_stats():
 @jwt_required()
 def get_attendance_report():
     """Get attendance report"""
+    from flask import current_app
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     batch_id = request.args.get('batch_id', type=int)
+    
+    current_app.logger.info(f"Generating attendance report - Start: {start_date}, End: {end_date}, Batch ID: {batch_id}")
     
     query = Attendance.query
     
@@ -107,9 +112,12 @@ def get_attendance_report():
 @jwt_required()
 def get_fees_report():
     """Get fees collection report"""
+    from flask import current_app
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     status = request.args.get('status')
+    
+    current_app.logger.info(f"Generating fees report - Start: {start_date}, End: {end_date}, Status: {status}")
     
     query = Fee.query
     
@@ -161,6 +169,8 @@ def get_fees_report():
 @jwt_required()
 def get_students_report():
     """Get students statistics report"""
+    from flask import current_app
+    current_app.logger.info("Generating students statistics report")
     students = Student.query.all()
     
     active_count = len([s for s in students if s.status == 'active'])

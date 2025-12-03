@@ -9,9 +9,12 @@ bp = Blueprint('teachers', __name__, url_prefix='/api/teachers')
 @jwt_required()
 def get_teachers():
     """Get all teachers"""
+    from flask import current_app
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     search = request.args.get('search', '')
+    
+    current_app.logger.info(f"Fetching teachers - Page: {page}, Per page: {per_page}, Search: '{search}'")
     
     query = Teacher.query
     
@@ -35,9 +38,12 @@ def get_teachers():
 @jwt_required()
 def get_teacher(id):
     """Get a single teacher by ID"""
+    from flask import current_app
+    current_app.logger.info(f"Fetching teacher with ID: {id}")
     teacher = Teacher.query.get(id)
     
     if not teacher:
+        current_app.logger.warning(f"Teacher not found: ID {id}")
         return jsonify({'error': 'Teacher not found'}), 404
     
     return jsonify({'teacher': teacher.to_dict()}), 200
@@ -46,17 +52,23 @@ def get_teacher(id):
 @jwt_required()
 def create_teacher():
     """Create a new teacher"""
+    from flask import current_app
     data = request.get_json()
     
+    current_app.logger.info(f"Creating new teacher: {data.get('name', 'N/A')}")
+    
     if not data or not data.get('name') or not data.get('email'):
+        current_app.logger.warning("Teacher creation failed: Missing required fields")
         return jsonify({'error': 'Missing required fields'}), 400
     
     # Check if email already exists in teachers table
     if Teacher.query.filter_by(email=data['email']).first():
+        current_app.logger.warning(f"Teacher creation failed: Email '{data['email']}' already exists in teachers")
         return jsonify({'error': 'Email already exists'}), 400
     
     # Check if email already exists in students table
     if Student.query.filter_by(email=data['email']).first():
+        current_app.logger.warning(f"Teacher creation failed: Email '{data['email']}' already exists in students")
         return jsonify({'error': 'Email already exists'}), 400
     
     teacher = Teacher(
@@ -75,21 +87,26 @@ def create_teacher():
     try:
         db.session.add(teacher)
         db.session.commit()
+        current_app.logger.info(f"Teacher created successfully: {teacher.name} (ID: {teacher.id})")
         return jsonify({
             'message': 'Teacher created successfully',
             'teacher': teacher.to_dict()
         }), 201
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error creating teacher '{data.get('name')}': {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_teacher(id):
     """Update a teacher"""
+    from flask import current_app
+    current_app.logger.info(f"Updating teacher with ID: {id}")
     teacher = Teacher.query.get(id)
     
     if not teacher:
+        current_app.logger.warning(f"Teacher update failed: ID {id} not found")
         return jsonify({'error': 'Teacher not found'}), 404
     
     data = request.get_json()
@@ -119,27 +136,35 @@ def update_teacher(id):
     
     try:
         db.session.commit()
+        current_app.logger.info(f"Teacher updated successfully: {teacher.name} (ID: {teacher.id})")
         return jsonify({
             'message': 'Teacher updated successfully',
             'teacher': teacher.to_dict()
         }), 200
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error updating teacher ID {id}: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_teacher(id):
     """Delete a teacher"""
+    from flask import current_app
+    current_app.logger.info(f"Deleting teacher with ID: {id}")
     teacher = Teacher.query.get(id)
     
     if not teacher:
+        current_app.logger.warning(f"Teacher deletion failed: ID {id} not found")
         return jsonify({'error': 'Teacher not found'}), 404
     
     try:
+        teacher_name = teacher.name
         db.session.delete(teacher)
         db.session.commit()
+        current_app.logger.info(f"Teacher deleted successfully: {teacher_name} (ID: {id})")
         return jsonify({'message': 'Teacher deleted successfully'}), 200
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error deleting teacher ID {id}: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500

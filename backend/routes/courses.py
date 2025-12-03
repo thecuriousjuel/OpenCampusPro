@@ -8,9 +8,12 @@ bp = Blueprint('courses', __name__, url_prefix='/api/courses')
 @jwt_required()
 def get_courses():
     """Get all courses"""
+    from flask import current_app
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     search = request.args.get('search', '')
+    
+    current_app.logger.info(f"Fetching courses - Page: {page}, Per page: {per_page}, Search: '{search}'")
     
     query = Course.query
     
@@ -33,9 +36,12 @@ def get_courses():
 @jwt_required()
 def get_course(id):
     """Get a single course by ID"""
+    from flask import current_app
+    current_app.logger.info(f"Fetching course with ID: {id}")
     course = Course.query.get(id)
     
     if not course:
+        current_app.logger.warning(f"Course not found: ID {id}")
         return jsonify({'error': 'Course not found'}), 404
     
     return jsonify({'course': course.to_dict()}), 200
@@ -44,12 +50,17 @@ def get_course(id):
 @jwt_required()
 def create_course():
     """Create a new course"""
+    from flask import current_app
     data = request.get_json()
     
+    current_app.logger.info(f"Creating new course: {data.get('name', 'N/A')} ({data.get('code', 'N/A')})")
+    
     if not data or not data.get('name') or not data.get('code'):
+        current_app.logger.warning("Course creation failed: Missing required fields")
         return jsonify({'error': 'Missing required fields'}), 400
     
     if Course.query.filter_by(code=data['code']).first():
+        current_app.logger.warning(f"Course creation failed: Code '{data['code']}' already exists")
         return jsonify({'error': 'Course code already exists'}), 400
     
     course = Course(
@@ -63,21 +74,26 @@ def create_course():
     try:
         db.session.add(course)
         db.session.commit()
+        current_app.logger.info(f"Course created successfully: {course.name} (ID: {course.id})")
         return jsonify({
             'message': 'Course created successfully',
             'course': course.to_dict()
         }), 201
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error creating course '{data.get('name')}': {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_course(id):
     """Update a course"""
+    from flask import current_app
+    current_app.logger.info(f"Updating course with ID: {id}")
     course = Course.query.get(id)
     
     if not course:
+        current_app.logger.warning(f"Course update failed: ID {id} not found")
         return jsonify({'error': 'Course not found'}), 404
     
     data = request.get_json()
@@ -98,27 +114,35 @@ def update_course(id):
     
     try:
         db.session.commit()
+        current_app.logger.info(f"Course updated successfully: {course.name} (ID: {course.id})")
         return jsonify({
             'message': 'Course updated successfully',
             'course': course.to_dict()
         }), 200
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error updating course ID {id}: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_course(id):
     """Delete a course"""
+    from flask import current_app
+    current_app.logger.info(f"Deleting course with ID: {id}")
     course = Course.query.get(id)
     
     if not course:
+        current_app.logger.warning(f"Course deletion failed: ID {id} not found")
         return jsonify({'error': 'Course not found'}), 404
     
     try:
+        course_name = course.name
         db.session.delete(course)
         db.session.commit()
+        current_app.logger.info(f"Course deleted successfully: {course_name} (ID: {id})")
         return jsonify({'message': 'Course deleted successfully'}), 200
     except Exception as e:
         db.session.rollback()
+        current_app.logger.error(f"Error deleting course ID {id}: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
