@@ -8,12 +8,26 @@ const Students = () => {
     const { API_URL, token } = useAuth();
     const { showSuccess, showError } = useNotification();
     const [students, setStudents] = useState([]);
+    const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [search, setSearch] = useState('');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, studentId: null });
+
+    // Filter states
+    const [filters, setFilters] = useState({
+        search: '',
+        batch: '',
+        status: '',
+        enrollmentDateFrom: '',
+        enrollmentDateTo: ''
+    });
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -24,12 +38,12 @@ const Students = () => {
 
     useEffect(() => {
         fetchStudents();
-    }, [search]);
+        fetchBatches();
+    }, []);
 
     const fetchStudents = async () => {
         try {
-            const url = search ? `${API_URL}/students?search=${search}&per_page=100` : `${API_URL}/students?per_page=100`;
-            const response = await fetch(url, {
+            const response = await fetch(`${API_URL}/students?per_page=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -39,6 +53,88 @@ const Students = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchBatches = async () => {
+        try {
+            const response = await fetch(`${API_URL}/batches?per_page=100`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            setBatches(data.batches || []);
+        } catch (error) {
+            console.error('Error fetching batches:', error);
+        }
+    };
+
+    // Apply all filters
+    const getFilteredStudents = () => {
+        return students.filter(student => {
+            // Search filter (name OR email)
+            if (filters.search) {
+                const searchLower = filters.search.toLowerCase();
+                const matchesName = student.name.toLowerCase().includes(searchLower);
+                const matchesEmail = student.email.toLowerCase().includes(searchLower);
+                if (!matchesName && !matchesEmail) return false;
+            }
+
+            // Batch filter
+            if (filters.batch && student.batch_id !== parseInt(filters.batch)) {
+                return false;
+            }
+
+            // Status filter
+            if (filters.status && student.status !== filters.status) {
+                return false;
+            }
+
+            // Enrollment date from filter
+            if (filters.enrollmentDateFrom && student.enrollment_date) {
+                if (new Date(student.enrollment_date) < new Date(filters.enrollmentDateFrom)) {
+                    return false;
+                }
+            }
+
+            // Enrollment date to filter
+            if (filters.enrollmentDateTo && student.enrollment_date) {
+                if (new Date(student.enrollment_date) > new Date(filters.enrollmentDateTo)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    };
+
+    // Get paginated students
+    const getPaginatedStudents = () => {
+        const filtered = getFilteredStudents();
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        return filtered.slice(indexOfFirstItem, indexOfLastItem);
+    };
+
+    const filteredStudents = getFilteredStudents();
+    const paginatedStudents = getPaginatedStudents();
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filters]);
+
+    const handleFilterChange = (key, value) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            search: '',
+            batch: '',
+            status: '',
+            enrollmentDateFrom: '',
+            enrollmentDateTo: ''
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -136,28 +232,99 @@ const Students = () => {
         );
     }
 
+    const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
+
     return (
         <div className="page-container fade-in">
             <div className="flex justify-between items-center mb-lg">
                 <div>
                     <h1 className="page-title">Students</h1>
-                    <p className="text-muted">Manage student records</p>
+                    <p className="text-muted">Manage student records ({filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'})</p>
                 </div>
                 <button className="btn btn-primary" onClick={handleAddNew}>
                     ➕ Add Student
                 </button>
             </div>
 
+            {/* Filters Section */}
             <div className="card mb-lg">
-                <input
-                    type="text"
-                    className="form-input"
-                    placeholder="🔍 Search students by name or email..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+                <div className="flex justify-between items-center mb-md">
+                    <h3 style={{ margin: 0 }}>🔍 Filters {activeFiltersCount > 0 && `(${activeFiltersCount} active)`}</h3>
+                    {activeFiltersCount > 0 && (
+                        <button className="btn btn-secondary btn-sm" onClick={clearFilters}>
+                            Clear All
+                        </button>
+                    )}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                    {/* Search */}
+                    <div>
+                        <label className="form-label">Search</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Name or email..."
+                            value={filters.search}
+                            onChange={(e) => handleFilterChange('search', e.target.value)}
+                        />
+                    </div>
+
+                    {/* Batch Filter */}
+                    <div>
+                        <label className="form-label">Batch</label>
+                        <select
+                            className="form-select"
+                            value={filters.batch}
+                            onChange={(e) => handleFilterChange('batch', e.target.value)}
+                        >
+                            <option value="">All Batches</option>
+                            {batches.map(batch => (
+                                <option key={batch.id} value={batch.id}>{batch.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div>
+                        <label className="form-label">Status</label>
+                        <select
+                            className="form-select"
+                            value={filters.status}
+                            onChange={(e) => handleFilterChange('status', e.target.value)}
+                        >
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="graduated">Graduated</option>
+                        </select>
+                    </div>
+
+                    {/* Enrollment Date From */}
+                    <div>
+                        <label className="form-label">Enrolled From</label>
+                        <input
+                            type="date"
+                            className="form-input"
+                            value={filters.enrollmentDateFrom}
+                            onChange={(e) => handleFilterChange('enrollmentDateFrom', e.target.value)}
+                        />
+                    </div>
+
+                    {/* Enrollment Date To */}
+                    <div>
+                        <label className="form-label">Enrolled To</label>
+                        <input
+                            type="date"
+                            className="form-input"
+                            value={filters.enrollmentDateTo}
+                            onChange={(e) => handleFilterChange('enrollmentDateTo', e.target.value)}
+                        />
+                    </div>
+                </div>
             </div>
 
+            {/* Table */}
             <div className="card">
                 <div className="table-container">
                     <table className="table">
@@ -166,24 +333,34 @@ const Students = () => {
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
+                                <th>Batch</th>
                                 <th>Status</th>
                                 <th>Enrollment Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {students.length === 0 ? (
+                            {paginatedStudents.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center text-muted">
-                                        No students found
+                                    <td colSpan="7" className="text-center text-muted">
+                                        {students.length === 0 ? 'No students found' : 'No students match the current filters'}
                                     </td>
                                 </tr>
                             ) : (
-                                students.map((student) => (
+                                paginatedStudents.map((student) => (
                                     <tr key={student.id}>
                                         <td>{student.name}</td>
                                         <td>{student.email}</td>
                                         <td>{student.phone || '-'}</td>
+                                        <td>
+                                            {student.batch_id ? (
+                                                <span className="badge badge-info">
+                                                    {batches.find(b => b.id === student.batch_id)?.name || `Batch #${student.batch_id}`}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted">-</span>
+                                            )}
+                                        </td>
                                         <td>
                                             <span className={`badge ${student.status === 'active' ? 'badge-success' :
                                                 student.status === 'inactive' ? 'badge-warning' :
@@ -209,6 +386,54 @@ const Students = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        borderTop: '1px solid var(--border-color)'
+                    }}>
+                        <div className="text-muted">
+                            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredStudents.length)} of {filteredStudents.length} students
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                            >
+                                First
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                ← Previous
+                            </button>
+                            <span className="text-muted">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next →
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Last
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Student' : 'Add New Student'}>

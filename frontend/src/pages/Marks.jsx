@@ -18,6 +18,11 @@ const Marks = () => {
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, markId: null });
     const [selectedBatch, setSelectedBatch] = useState('');
     const [searchStudent, setSearchStudent] = useState('');
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
     const [formData, setFormData] = useState({
         student_id: '',
         batch_id: '',
@@ -32,6 +37,11 @@ const Marks = () => {
 
     useEffect(() => {
         fetchMarks();
+    }, [selectedBatch, searchStudent]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
     }, [selectedBatch, searchStudent]);
 
     const fetchBatches = async () => {
@@ -161,13 +171,19 @@ const Marks = () => {
         setFormData({ student_id: '', batch_id: '', marks_obtained: '' });
     };
 
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentMarks = marks.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(marks.length / itemsPerPage);
+
     if (loading) return <div className="page-container"><div className="spinner"></div></div>;
 
     return (
         <div className="page-container fade-in">
             <div className="flex justify-between items-center mb-lg">
                 <div>
-                    <h1 className="page-title">📝 Marks Management</h1>
+                    <h1 className="page-title">Marks Management</h1>
                     <p className="text-muted">Track student performance across batches</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowModal(true)}>➕ Add Mark</button>
@@ -218,10 +234,10 @@ const Marks = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {marks.length === 0 ? (
+                            {currentMarks.length === 0 ? (
                                 <tr><td colSpan="6" className="text-center text-muted">No marks found</td></tr>
                             ) : (
-                                marks.map((mark) => (
+                                currentMarks.map((mark) => (
                                     <tr key={mark.id} className={mark.status === 'PASSED' ? 'marks-row-passed' : 'marks-row-failed'}>
                                         <td>{mark.student_name}</td>
                                         <td>{mark.batch_name}</td>
@@ -244,6 +260,54 @@ const Marks = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        borderTop: '1px solid var(--border-color)'
+                    }}>
+                        <div className="text-muted">
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, marks.length)} of {marks.length} marks
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                            >
+                                First
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                ← Previous
+                            </button>
+                            <span className="text-muted">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next →
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Last
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Mark' : 'Add New Mark'}>

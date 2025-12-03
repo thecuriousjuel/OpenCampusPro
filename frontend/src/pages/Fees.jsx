@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
+import { formatINR } from '../utils/currency';
 
 const Fees = () => {
     const { API_URL, token } = useAuth();
@@ -13,6 +14,11 @@ const Fees = () => {
     const [showModal, setShowModal] = useState(false);
     const [filter, setFilter] = useState('all');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: '', feeId: null });
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
     const [formData, setFormData] = useState({
         student_id: '',
         amount: '',
@@ -23,6 +29,11 @@ const Fees = () => {
     useEffect(() => {
         fetchFees();
         fetchStudents();
+    }, [filter]);
+
+    // Reset to page 1 when filter changes
+    useEffect(() => {
+        setCurrentPage(1);
     }, [filter]);
 
     const fetchFees = async () => {
@@ -148,6 +159,12 @@ const Fees = () => {
     const paidAmount = fees.filter(f => f.status === 'paid').reduce((sum, fee) => sum + fee.amount, 0);
     const outstanding = totalAmount - paidAmount;
 
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentFees = fees.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(fees.length / itemsPerPage);
+
     if (loading) return <div className="page-container"><div className="spinner"></div></div>;
 
     return (
@@ -162,15 +179,15 @@ const Fees = () => {
 
             <div className="dashboard-grid mb-lg">
                 <div className="card">
-                    <h3 className="text-primary">₹{totalAmount.toFixed(2)}</h3>
+                    <h3 className="text-primary">{formatINR(totalAmount)}</h3>
                     <p className="text-muted">Total Fees</p>
                 </div>
                 <div className="card">
-                    <h3 className="text-success">₹{paidAmount.toFixed(2)}</h3>
+                    <h3 className="text-success">{formatINR(paidAmount)}</h3>
                     <p className="text-muted">Collected</p>
                 </div>
                 <div className="card">
-                    <h3 className="text-danger">₹{outstanding.toFixed(2)}</h3>
+                    <h3 className="text-danger">{formatINR(outstanding)}</h3>
                     <p className="text-muted">Outstanding</p>
                 </div>
             </div>
@@ -198,13 +215,13 @@ const Fees = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {fees.length === 0 ? (
+                            {currentFees.length === 0 ? (
                                 <tr><td colSpan="6" className="text-center text-muted">No fee records found</td></tr>
                             ) : (
-                                fees.map((fee) => (
+                                currentFees.map((fee) => (
                                     <tr key={fee.id}>
                                         <td>{fee.student_name}</td>
-                                        <td>₹{fee.amount.toFixed(2)}</td>
+                                        <td>{formatINR(fee.amount)}</td>
                                         <td>{fee.due_date ? new Date(fee.due_date).toLocaleDateString() : '-'}</td>
                                         <td>{fee.paid_date ? new Date(fee.paid_date).toLocaleDateString() : '-'}</td>
                                         <td>
@@ -229,6 +246,54 @@ const Fees = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        borderTop: '1px solid var(--border-color)'
+                    }}>
+                        <div className="text-muted">
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, fees.length)} of {fees.length} fees
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                            >
+                                First
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                ← Previous
+                            </button>
+                            <span className="text-muted">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next →
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Last
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title="Add Fee Record">

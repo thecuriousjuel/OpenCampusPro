@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { formatINR } from '../utils/currency';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -98,9 +99,9 @@ const Dashboard = () => {
                         💰
                     </div>
                     <div className="stat-content">
-                        <h3 className="stat-value">₹{stats?.fees?.outstanding?.toFixed(2) || '0.00'}</h3>
+                        <h3 className="stat-value">{formatINR(stats?.fees?.outstanding || 0)}</h3>
                         <p className="stat-label">Outstanding Fees</p>
-                        <p className="stat-meta text-success">₹{stats?.fees?.paid?.toFixed(2) || '0.00'} collected</p>
+                        <p className="stat-meta text-success">{formatINR(stats?.fees?.paid || 0)} collected</p>
                     </div>
                 </div>
             </div>

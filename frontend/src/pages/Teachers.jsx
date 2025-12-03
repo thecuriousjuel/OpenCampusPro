@@ -14,6 +14,11 @@ const Teachers = () => {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [search, setSearch] = useState('');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, teacherId: null });
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -115,6 +120,12 @@ const Teachers = () => {
         setFormData({ name: '', email: '', phone: '', specialization: '' });
     };
 
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentTeachers = teachers.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(teachers.length / itemsPerPage);
+
     if (loading) {
         return <div className="page-container"><div className="spinner"></div></div>;
     }
@@ -144,10 +155,10 @@ const Teachers = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {teachers.length === 0 ? (
+                            {currentTeachers.length === 0 ? (
                                 <tr><td colSpan="5" className="text-center text-muted">No teachers found</td></tr>
                             ) : (
-                                teachers.map((teacher) => (
+                                currentTeachers.map((teacher) => (
                                     <tr key={teacher.id}>
                                         <td>{teacher.name}</td>
                                         <td>{teacher.email}</td>
@@ -165,6 +176,54 @@ const Teachers = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        borderTop: '1px solid var(--border-color)'
+                    }}>
+                        <div className="text-muted">
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, teachers.length)} of {teachers.length} teachers
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(1)}
+                                disabled={currentPage === 1}
+                            >
+                                First
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                ← Previous
+                            </button>
+                            <span className="text-muted">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next →
+                            </button>
+                            <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Last
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Teacher' : 'Add New Teacher'}>

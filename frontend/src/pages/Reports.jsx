@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { formatINR } from '../utils/currency';
 
 const Reports = () => {
     const { API_URL, token } = useAuth();
@@ -131,9 +132,9 @@ const Reports = () => {
                                 <p className="text-muted">Attendance Rate</p>
                             </div>
                             <div className="card">
-                                <h3 className="text-danger">₹{dashboardStats.fees?.outstanding?.toFixed(2) || '0.00'}</h3>
-                                <p className="text-muted">Outstanding Fees</p>
-                                <p className="text-success text-sm">₹{dashboardStats.fees?.paid?.toFixed(2) || '0.00'} Collected</p>
+                                <h3 className="text-danger">{formatINR(dashboardStats.fees?.outstanding || 0)}</h3>
+                                <p className="text-muted">Outstanding</p>
+                                <p className="text-success text-sm">{formatINR(dashboardStats.fees?.paid || 0)} Collected</p>
                             </div>
                         </div>
                     )}
@@ -167,23 +168,20 @@ const Reports = () => {
                             <h2 className="card-header">Fee Collection Report</h2>
                             <div className="dashboard-grid mb-lg">
                                 <div className="card">
-                                    <h3 className="text-primary">₹{feesReport.summary?.total_amount?.toFixed(2) || '0.00'}</h3>
+                                    <h3 className="text-primary">{formatINR(feesReport.summary?.total_amount || 0)}</h3>
                                     <p>Total Amount</p>
                                 </div>
                                 <div className="card">
-                                    <h3 className="text-success">₹{feesReport.summary?.paid_amount?.toFixed(2) || '0.00'}</h3>
-                                    <p>Collected</p>
-                                    <p className="text-sm text-muted">{feesReport.summary?.paid_count || 0} payments</p>
+                                    <h3 className="text-success">{formatINR(feesReport.summary?.paid_amount || 0)}</h3>
+                                    <p>Paid ({feesReport.summary?.paid_count || 0})</p>
                                 </div>
                                 <div className="card">
-                                    <h3 className="text-warning">₹{feesReport.summary?.pending_amount?.toFixed(2) || '0.00'}</h3>
-                                    <p>Pending</p>
-                                    <p className="text-sm text-muted">{feesReport.summary?.pending_count || 0} pending</p>
+                                    <h3 className="text-warning">{formatINR(feesReport.summary?.pending_amount || 0)}</h3>
+                                    <p>Pending ({feesReport.summary?.pending_count || 0})</p>
                                 </div>
                                 <div className="card">
-                                    <h3 className="text-danger">₹{feesReport.summary?.overdue_amount?.toFixed(2) || '0.00'}</h3>
-                                    <p>Overdue</p>
-                                    <p className="text-sm text-muted">{feesReport.summary?.overdue_count || 0} overdue</p>
+                                    <h3 className="text-danger">{formatINR(feesReport.summary?.overdue_amount || 0)}</h3>
+                                    <p>Overdue ({feesReport.summary?.overdue_count || 0})</p>
                                 </div>
                             </div>
                             <div className="card">
