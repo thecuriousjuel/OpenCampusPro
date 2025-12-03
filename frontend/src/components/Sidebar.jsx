@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
@@ -7,6 +8,7 @@ const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const [isLogoutHovered, setIsLogoutHovered] = useState(false);
 
     const menuItems = [
         { path: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -27,7 +29,7 @@ const Sidebar = () => {
     return (
         <div className="sidebar">
             <div className="sidebar-header">
-                <h2 className="sidebar-logo">🎓 EduManage</h2>
+                <h2 className="sidebar-logo">🎓 MyCampusPro</h2>
             </div>
 
             <nav className="sidebar-nav">
@@ -45,8 +47,13 @@ const Sidebar = () => {
 
             <div className="sidebar-footer">
                 <ThemeToggle />
-                <button onClick={handleLogout} className="logout-button">
-                    <span className="logout-icon">🚪</span>
+                <button
+                    onClick={handleLogout}
+                    className="logout-button"
+                    onMouseEnter={() => setIsLogoutHovered(true)}
+                    onMouseLeave={() => setIsLogoutHovered(false)}
+                >
+                    <span className="logout-icon">{isLogoutHovered ? '🚶‍♂️' : '🚪'}</span>
                     <span className="logout-label">Logout</span>
                 </button>
             </div>
