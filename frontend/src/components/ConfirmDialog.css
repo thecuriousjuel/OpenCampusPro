@@ -24,9 +24,8 @@
 }
 
 .confirm-dialog {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
     width: 90%;
@@ -36,7 +35,7 @@
 
 .confirm-header {
     padding: var(--spacing-lg);
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .confirm-header h3 {
@@ -59,7 +58,7 @@
 
 .confirm-footer {
     padding: var(--spacing-lg);
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--border-color);
     display: flex;
     gap: var(--spacing-md);
     justify-content: flex-end;

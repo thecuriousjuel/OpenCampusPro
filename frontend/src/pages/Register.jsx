@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
 import './Auth.css';
 
 const Register = () => {
@@ -36,6 +37,9 @@ const Register = () => {
 
     return (
         <div className="auth-container">
+            <div className="auth-theme-toggle">
+                <ThemeToggle />
+            </div>
             <div className="auth-card card-glass slide-up">
                 <div className="auth-header">
                     <h1 className="auth-logo">🎓 EduManage</h1>

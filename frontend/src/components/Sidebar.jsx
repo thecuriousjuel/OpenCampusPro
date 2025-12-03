@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -43,8 +44,10 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
-                <button onClick={handleLogout} className="btn btn-secondary" style={{ width: '100%' }}>
-                    🚪 Logout
+                <ThemeToggle />
+                <button onClick={handleLogout} className="logout-button">
+                    <span className="logout-icon">🚪</span>
+                    <span className="logout-label">Logout</span>
                 </button>
             </div>
         </div>

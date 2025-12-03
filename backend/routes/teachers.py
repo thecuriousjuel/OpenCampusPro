@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
-from models import db, Teacher
+from models import db, Teacher, Student
 from datetime import datetime
 
 bp = Blueprint('teachers', __name__, url_prefix='/api/teachers')
@@ -51,7 +51,12 @@ def create_teacher():
     if not data or not data.get('name') or not data.get('email'):
         return jsonify({'error': 'Missing required fields'}), 400
     
+    # Check if email already exists in teachers table
     if Teacher.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'Email already exists'}), 400
+    
+    # Check if email already exists in students table
+    if Student.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already exists'}), 400
     
     teacher = Teacher(
@@ -92,9 +97,15 @@ def update_teacher(id):
     if data.get('name'):
         teacher.name = data['name']
     if data.get('email'):
+        # Check if new email already exists in teachers table
         existing = Teacher.query.filter_by(email=data['email']).first()
         if existing and existing.id != id:
             return jsonify({'error': 'Email already exists'}), 400
+        
+        # Check if new email already exists in students table
+        if Student.query.filter_by(email=data['email']).first():
+            return jsonify({'error': 'Email already exists'}), 400
+        
         teacher.email = data['email']
     if 'phone' in data:
         teacher.phone = data['phone']

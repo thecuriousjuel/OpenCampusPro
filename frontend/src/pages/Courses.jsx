@@ -187,9 +187,20 @@ const Courses = () => {
                             onChange={(e) => setFormData({ ...formData, credits: e.target.value })} />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Duration</label>
-                        <input type="text" className="form-input" value={formData.duration} placeholder="e.g., 6 months"
-                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })} />
+                        <label className="form-label">Duration (months)</label>
+                        <input
+                            type="number"
+                            className="form-input"
+                            value={formData.duration}
+                            placeholder="e.g., 6"
+                            min="1"
+                            step="1"
+                            onInput={(e) => {
+                                // Remove any decimal points or negative signs
+                                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                            }}
+                            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                        />
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
