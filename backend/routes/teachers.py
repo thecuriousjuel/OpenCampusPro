@@ -95,7 +95,7 @@ def create_teacher():
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error creating teacher '{data.get('name')}': {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An unexpected database error occurred. Please try again later.'}), 500
 
 @bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
@@ -144,7 +144,7 @@ def update_teacher(id):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error updating teacher ID {id}: {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An unexpected database error occurred. Please try again later.'}), 500
 
 @bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()
@@ -167,4 +167,4 @@ def delete_teacher(id):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error deleting teacher ID {id}: {str(e)}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'An unexpected database error occurred. Please try again later.'}), 500

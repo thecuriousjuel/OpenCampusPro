@@ -75,8 +75,14 @@ const Teachers = () => {
                 fetchTeachers();
                 handleCloseModal();
             } else {
-                const errorData = await response.json();
-                showError(`Failed to ${editMode ? 'update' : 'create'} teacher: ${errorData.error || 'Unknown error'}`);
+                let errorMessage = 'Unknown error';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || 'Unknown error';
+                } catch (e) {
+                    errorMessage = 'An unexpected error occurred. Please try again later.';
+                }
+                showError(`Failed to ${editMode ? 'update' : 'create'} teacher: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Error saving teacher:', error);
@@ -110,8 +116,14 @@ const Teachers = () => {
                 showSuccess('Teacher deleted successfully!');
                 fetchTeachers();
             } else {
-                const errorData = await response.json();
-                showError(`Failed to delete teacher: ${errorData.error || 'Unknown error'}`);
+                let errorMessage = 'Unknown error';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || 'Unknown error';
+                } catch (e) {
+                    errorMessage = 'An unexpected error occurred. Please try again later.';
+                }
+                showError(`Failed to delete teacher: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Error deleting teacher:', error);
