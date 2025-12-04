@@ -313,26 +313,11 @@ const Marks = () => {
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Mark' : 'Add New Mark'}>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Student *</label>
-                        <select
-                            className="form-select"
-                            value={formData.student_id}
-                            onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
-                            required
-                            disabled={editMode}
-                        >
-                            <option value="">Select Student</option>
-                            {students.map(student => (
-                                <option key={student.id} value={student.id}>{student.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="form-group">
                         <label className="form-label">Batch *</label>
                         <select
                             className="form-select"
                             value={formData.batch_id}
-                            onChange={(e) => setFormData({ ...formData, batch_id: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, batch_id: e.target.value, student_id: '' })}
                             required
                             disabled={editMode}
                         >
@@ -343,6 +328,25 @@ const Marks = () => {
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div className="form-group">
+                        <label className="form-label">Student *</label>
+                        <select
+                            className="form-select"
+                            value={formData.student_id}
+                            onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                            required
+                            disabled={editMode || !formData.batch_id}
+                        >
+                            <option value="">Select Student</option>
+                            {students
+                                .filter(student => !formData.batch_id || student.batch_id === parseInt(formData.batch_id))
+                                .map(student => (
+                                    <option key={student.id} value={student.id}>{student.name}</option>
+                                ))
+                            }
+                        </select>
+                        {!formData.batch_id && <small className="text-muted">Please select a batch first</small>}
                     </div>
                     <div className="form-group">
                         <label className="form-label">Marks Obtained (0-100) *</label>
@@ -373,7 +377,7 @@ const Marks = () => {
                 confirmText="Delete"
                 type="danger"
             />
-        </div>
+        </div >
     );
 };
 

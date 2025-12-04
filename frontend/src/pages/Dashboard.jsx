@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/currency';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const { API_URL, token } = useAuth();
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -110,10 +112,10 @@ const Dashboard = () => {
                 <div className="card">
                     <h2 className="card-header">Quick Actions</h2>
                     <div className="quick-actions">
-                        <button className="btn btn-primary">➕ Add Student</button>
-                        <button className="btn btn-primary">➕ Add Teacher</button>
-                        <button className="btn btn-primary">➕ Create Batch</button>
-                        <button className="btn btn-primary">✓ Mark Attendance</button>
+                        <button className="btn btn-primary" onClick={() => navigate('/students', { state: { openAddModal: true } })}>➕ Add Student</button>
+                        <button className="btn btn-primary" onClick={() => navigate('/teachers', { state: { openAddModal: true } })}>➕ Add Teacher</button>
+                        <button className="btn btn-primary" onClick={() => navigate('/batches', { state: { openAddModal: true } })}>➕ Create Batch</button>
+                        <button className="btn btn-primary" onClick={() => navigate('/attendance')}>✓ Mark Attendance</button>
                     </div>
                 </div>
             </div>

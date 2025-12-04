@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
@@ -14,6 +15,7 @@ const Teachers = () => {
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [search, setSearch] = useState('');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, teacherId: null });
+    const location = useLocation();
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +30,14 @@ const Teachers = () => {
 
     useEffect(() => {
         fetchTeachers();
+
+        if (location.state?.openAddModal) {
+            setEditMode(false);
+            setFormData({ name: '', email: '', phone: '', specialization: '' });
+            setShowModal(true);
+            // Clear state to prevent reopening on refresh
+            window.history.replaceState({}, document.title);
+        }
     }, []);
 
     const fetchTeachers = async () => {

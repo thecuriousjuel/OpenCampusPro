@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
@@ -23,11 +24,20 @@ const Batches = () => {
         end_date: '',
         capacity: 30
     });
+    const location = useLocation();
 
     useEffect(() => {
         fetchBatches();
         fetchCourses();
         fetchTeachers();
+
+        if (location.state?.openAddModal) {
+            setEditMode(false);
+            setFormData({ name: '', course_id: '', teacher_id: '', start_date: '', end_date: '', capacity: 30 });
+            setShowModal(true);
+            // Clear state to prevent reopening on refresh
+            window.history.replaceState({}, document.title);
+        }
     }, []);
 
     const fetchBatches = async () => {

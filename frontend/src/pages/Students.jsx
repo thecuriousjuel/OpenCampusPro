@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
@@ -14,6 +15,7 @@ const Students = () => {
     const [editMode, setEditMode] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, studentId: null });
+    const location = useLocation();
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -40,6 +42,12 @@ const Students = () => {
     useEffect(() => {
         fetchStudents();
         fetchBatches();
+
+        if (location.state?.openAddModal) {
+            handleAddNew();
+            // Clear state to prevent reopening on refresh
+            window.history.replaceState({}, document.title);
+        }
     }, []);
 
     const fetchStudents = async () => {
@@ -81,7 +89,9 @@ const Students = () => {
 
             // Batch filter
             if (filters.batch) {
-                if (student.batch_id !== parseInt(filters.batch)) {
+                if (filters.batch === 'unassigned') {
+                    if (student.batch_id) return false;
+                } else if (student.batch_id !== parseInt(filters.batch)) {
                     return false;
                 }
             }
@@ -283,6 +293,7 @@ const Students = () => {
                             onChange={(e) => handleFilterChange('batch', e.target.value)}
                         >
                             <option value="">All Batches</option>
+                            <option value="unassigned">Unassigned</option>
                             {batches.map(batch => (
                                 <option key={batch.id} value={batch.id}>{batch.name}</option>
                             ))}
