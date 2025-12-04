@@ -70,12 +70,21 @@ def create_student():
         current_app.logger.warning(f"Student creation failed: Email '{data['email']}' already exists in teachers")
         return jsonify({'error': 'Email already exists'}), 400
     
+    # Validate batch if provided
+    if data.get('batch_id'):
+        from models import Batch
+        batch = Batch.query.get(data['batch_id'])
+        if not batch:
+            current_app.logger.warning(f"Student creation failed: Batch ID {data['batch_id']} not found")
+            return jsonify({'error': 'Batch not found'}), 404
+    
     student = Student(
         name=data['name'],
         email=data['email'],
         phone=data.get('phone'),
         address=data.get('address'),
-        status=data.get('status', 'active')
+        status=data.get('status', 'active'),
+        batch_id=data.get('batch_id')
     )
     
     if data.get('enrollment_date'):
@@ -135,6 +144,21 @@ def update_student(id):
             student.enrollment_date = datetime.fromisoformat(data['enrollment_date']).date()
         except:
             pass
+    
+    # Handle batch_id update
+    if 'batch_id' in data:
+        if data['batch_id']:
+            # Validate batch exists
+            from models import Batch
+            batch = Batch.query.get(data['batch_id'])
+            if not batch:
+                current_app.logger.warning(f"Student update failed: Batch ID {data['batch_id']} not found")
+                return jsonify({'error': 'Batch not found'}), 404
+            student.batch_id = data['batch_id']
+        else:
+            # Allow removing batch assignment
+            student.batch_id = None
+
     
     try:
         db.session.commit()

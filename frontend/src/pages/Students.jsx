@@ -33,7 +33,8 @@ const Students = () => {
         email: '',
         phone: '',
         address: '',
-        status: 'active'
+        status: 'active',
+        batch_id: ''
     });
 
     useEffect(() => {
@@ -79,8 +80,10 @@ const Students = () => {
             }
 
             // Batch filter
-            if (filters.batch && student.batch_id !== parseInt(filters.batch)) {
-                return false;
+            if (filters.batch) {
+                if (student.batch_id !== parseInt(filters.batch)) {
+                    return false;
+                }
             }
 
             // Status filter
@@ -175,7 +178,8 @@ const Students = () => {
             email: student.email,
             phone: student.phone || '',
             address: student.address || '',
-            status: student.status
+            status: student.status,
+            batch_id: student.batch_id || ''
         });
         setEditMode(true);
         setShowModal(true);
@@ -213,12 +217,12 @@ const Students = () => {
         setShowModal(false);
         setEditMode(false);
         setSelectedStudent(null);
-        setFormData({ name: '', email: '', phone: '', address: '', status: 'active' });
+        setFormData({ name: '', email: '', phone: '', address: '', status: 'active', batch_id: '' });
     };
 
     const handleAddNew = () => {
         setEditMode(false);
-        setFormData({ name: '', email: '', phone: '', address: '', status: 'active' });
+        setFormData({ name: '', email: '', phone: '', address: '', status: 'active', batch_id: '' });
         setShowModal(true);
     };
 
@@ -477,6 +481,22 @@ const Students = () => {
                             value={formData.address}
                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Batch</label>
+                        <select
+                            className="form-select"
+                            value={formData.batch_id}
+                            onChange={(e) => setFormData({ ...formData, batch_id: e.target.value })}
+                        >
+                            <option value="">No Batch</option>
+                            {batches.map(batch => (
+                                <option key={batch.id} value={batch.id}>
+                                    {batch.name} {batch.course_name ? `- ${batch.course_name}` : ''}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div className="form-group">

@@ -39,8 +39,10 @@ class Student(db.Model):
     address = db.Column(db.Text)
     enrollment_date = db.Column(db.Date, default=datetime.utcnow)
     status = db.Column(db.String(20), default='active')  # active, inactive, graduated
+    batch_id = db.Column(db.Integer, db.ForeignKey('batches.id'), nullable=True)
     
     # Relationships
+    batch = db.relationship('Batch', backref='students', lazy=True)
     attendance_records = db.relationship('Attendance', backref='student', lazy=True, cascade='all, delete-orphan')
     fee_records = db.relationship('Fee', backref='student', lazy=True, cascade='all, delete-orphan')
     marks = db.relationship('Mark', backref='student', lazy=True, cascade='all, delete-orphan')
@@ -53,7 +55,9 @@ class Student(db.Model):
             'phone': self.phone,
             'address': self.address,
             'enrollment_date': self.enrollment_date.isoformat() if self.enrollment_date else None,
-            'status': self.status
+            'status': self.status,
+            'batch_id': self.batch_id,
+            'batch_name': self.batch.name if self.batch else None
         }
 
 class Teacher(db.Model):

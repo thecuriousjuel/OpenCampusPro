@@ -23,6 +23,7 @@ def clear_database():
         Course.query.delete()
         Teacher.query.delete()
         Student.query.delete()
+        User.query.delete()
         db.session.commit()
         print("Database cleared!")
 
@@ -127,6 +128,22 @@ def seed_batches(courses, teachers, count=15):
     print(f"Created {count} batches!")
     return batches
 
+def assign_batches_to_students(students, batches):
+    """Assign batches to students"""
+    print(f"Assigning batches to students...")
+    count = 0
+    
+    # Assign batches to 70% of students (leave 30% without batches)
+    students_to_assign = int(len(students) * 0.7)
+    
+    for student in students[:students_to_assign]:
+        # Assign a random batch
+        student.batch_id = random.choice(batches).id
+        count += 1
+    
+    db.session.commit()
+    print(f"Assigned batches to {count} students!")
+
 def seed_attendance(students, batches, records_per_student=10):
     """Create attendance records"""
     statuses = ['present', 'present', 'present', 'present', 'absent', 'late']
@@ -210,6 +227,47 @@ def seed_marks(students, batches):
     db.session.commit()
     print(f"Created {count} marks records!")
 
+def seed_users(count=5):
+    """Create sample users"""
+    users = []
+    
+    print(f"Creating users...")
+    
+    # Create Admin User
+    admin = User(
+        username="admin",
+        email="admin@school.edu",
+        role="admin"
+    )
+    admin.set_password("admin123")
+    db.session.add(admin)
+    users.append(admin)
+    
+    # Create Staff User
+    staff = User(
+        username="staff",
+        email="staff@school.edu",
+        role="staff"
+    )
+    staff.set_password("staff123")
+    db.session.add(staff)
+    users.append(staff)
+    
+    # Create random staff users
+    for i in range(count):
+        user = User(
+            username=fake.user_name(),
+            email=fake.email(),
+            role="staff"
+        )
+        user.set_password("password123")
+        db.session.add(user)
+        users.append(user)
+    
+    db.session.commit()
+    print(f"Created {len(users)} users!")
+    return users
+
 def main():
     """Run all seed functions"""
     with app.app_context():
@@ -225,9 +283,11 @@ def main():
         students = seed_students(50)
         teachers = seed_teachers(50)
         batches = seed_batches(courses, teachers, 15)
+        assign_batches_to_students(students, batches)  # NEW: Assign batches to students
         seed_attendance(students, batches)
         seed_fees(students)
         seed_marks(students, batches)
+        seed_users()
         
         print("\n" + "="*50)
         print("Database seeding completed successfully!")
@@ -240,6 +300,7 @@ def main():
         print(f"  - Attendance Records: {Attendance.query.count()}")
         print(f"  - Fee Records: {Fee.query.count()}")
         print(f"  - Marks Records: {Mark.query.count()}")
+        print(f"  - Users: {User.query.count()}")
         print()
 
 if __name__ == '__main__':
