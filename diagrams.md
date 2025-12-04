@@ -58,6 +58,7 @@ classDiagram
     
     class Student {
         +Integer id
+        +String student_code
         +String name
         +String email
         +String phone
@@ -69,6 +70,7 @@ classDiagram
     
     class Teacher {
         +Integer id
+        +String employee_id
         +String name
         +String email
         +String phone

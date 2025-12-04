@@ -5,13 +5,14 @@ A comprehensive web-based Student Management System built with Flask (Backend) a
 ## 📋 Features
 
 - **User Authentication**: Secure JWT-based authentication with admin and staff roles
-- **Student Management**: Add, edit, view, and delete student records
-- **Teacher Management**: Manage teacher profiles and assignments
+- **Student Management**: Add, edit, view, and delete student records with standardized IDs (STUD-xxxx)
+- **Teacher Management**: Manage teacher profiles and assignments with standardized IDs (TEAC-xxxx)
 - **Course Management**: Create and manage courses with codes, credits, and duration
 - **Batch Management**: Organize students into batches with assigned teachers and courses
 - **Attendance Tracking**: Record and monitor student attendance
 - **Fee Management**: Track fee payments, due dates, and payment status
 - **Reports**: Generate comprehensive reports for students, attendance, and fees
+- **Search & Filtering**: Enhanced search capabilities across modules using Name, Email, or ID
 - **Custom UI Components**: Toast notifications and confirmation dialogs
 
 ## 🏗️ Architecture
