@@ -11,6 +11,7 @@ const Attendance = () => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [attendanceData, setAttendanceData] = useState({});
     const [loading, setLoading] = useState(false);
+    const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
 
     useEffect(() => {
         fetchBatches();
@@ -114,6 +115,24 @@ const Attendance = () => {
         setAttendanceData(newData);
     };
 
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedStudents = [...students].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
     return (
         <div className="page-container fade-in">
             <h1 className="page-title">Attendance Management</h1>
@@ -156,14 +175,22 @@ const Attendance = () => {
                                 <table className="table">
                                     <thead>
                                         <tr>
-                                            <th>Student Name</th>
-                                            <th>Email</th>
+                                            <th onClick={() => handleSort('id')} style={{ cursor: 'pointer' }}>
+                                                Student ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                                                Student Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
+                                            <th onClick={() => handleSort('email')} style={{ cursor: 'pointer' }}>
+                                                Email {sortConfig.key === 'email' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                                            </th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {students.map(student => (
+                                        {sortedStudents.map(student => (
                                             <tr key={student.id}>
+                                                <td>{student.student_code || student.id}</td>
                                                 <td>{student.name}</td>
                                                 <td>{student.email}</td>
                                                 <td>

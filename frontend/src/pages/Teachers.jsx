@@ -14,6 +14,7 @@ const Teachers = () => {
     const [editMode, setEditMode] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
     const [search, setSearch] = useState('');
+    const [specializationFilter, setSpecializationFilter] = useState('');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, teacherId: null });
     const location = useLocation();
 
@@ -22,6 +23,7 @@ const Teachers = () => {
     const [itemsPerPage] = useState(10);
 
     const [formData, setFormData] = useState({
+        employee_id: '',
         name: '',
         email: '',
         phone: '',
@@ -33,16 +35,24 @@ const Teachers = () => {
 
         if (location.state?.openAddModal) {
             setEditMode(false);
-            setFormData({ name: '', email: '', phone: '', specialization: '' });
+            setFormData({ employee_id: '', name: '', email: '', phone: '', specialization: '' });
             setShowModal(true);
             // Clear state to prevent reopening on refresh
             window.history.replaceState({}, document.title);
         }
     }, []);
 
+    useEffect(() => {
+        fetchTeachers();
+    }, [search, specializationFilter]);
+
     const fetchTeachers = async () => {
         try {
-            const response = await fetch(`${API_URL}/teachers?per_page=100`, {
+            let url = `${API_URL}/teachers?per_page=100`;
+            if (search) url += `&search=${search}`;
+            if (specializationFilter) url += `&specialization=${specializationFilter}`;
+
+            const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -93,6 +103,7 @@ const Teachers = () => {
     const handleEdit = (teacher) => {
         setSelectedTeacher(teacher);
         setFormData({
+            employee_id: teacher.employee_id || '',
             name: teacher.name,
             email: teacher.email,
             phone: teacher.phone || '',
@@ -139,7 +150,7 @@ const Teachers = () => {
         setShowModal(false);
         setEditMode(false);
         setSelectedTeacher(null);
-        setFormData({ name: '', email: '', phone: '', specialization: '' });
+        setFormData({ employee_id: '', name: '', email: '', phone: '', specialization: '' });
     };
 
     // Pagination logic
@@ -164,11 +175,40 @@ const Teachers = () => {
                 </button>
             </div>
 
+            <div className="card mb-lg">
+                <div className="flex gap-md">
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Search by name, email or ID..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group" style={{ width: '200px', marginBottom: 0 }}>
+                        <select
+                            className="form-select"
+                            value={specializationFilter}
+                            onChange={(e) => setSpecializationFilter(e.target.value)}
+                        >
+                            <option value="">All Specializations</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Data Science">Data Science</option>
+                            <option value="Web Development">Web Development</option>
+                            <option value="Machine Learning">Machine Learning</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div className="card">
                 <div className="table-container">
                     <table className="table">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -182,6 +222,7 @@ const Teachers = () => {
                             ) : (
                                 currentTeachers.map((teacher) => (
                                     <tr key={teacher.id}>
+                                        <td>{teacher.employee_id || teacher.id}</td>
                                         <td>{teacher.name}</td>
                                         <td>{teacher.email}</td>
                                         <td>{teacher.phone || '-'}</td>
@@ -250,6 +291,12 @@ const Teachers = () => {
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Teacher' : 'Add New Teacher'}>
                 <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Employee ID</label>
+                        <input type="text" className="form-input" value={formData.employee_id}
+                            onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                            placeholder="Auto-generated if empty" />
+                    </div>
                     <div className="form-group">
                         <label className="form-label">Name *</label>
                         <input type="text" className="form-input" value={formData.name}

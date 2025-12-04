@@ -84,7 +84,8 @@ const Students = () => {
                 const searchLower = filters.search.toLowerCase();
                 const matchesName = student.name.toLowerCase().includes(searchLower);
                 const matchesEmail = student.email.toLowerCase().includes(searchLower);
-                if (!matchesName && !matchesEmail) return false;
+                const matchesId = String(student.student_code || student.id).toLowerCase().includes(searchLower);
+                if (!matchesName && !matchesEmail && !matchesId) return false;
             }
 
             // Batch filter
@@ -278,7 +279,7 @@ const Students = () => {
                         <input
                             type="text"
                             className="form-input"
-                            placeholder="Name or email..."
+                            placeholder="Name, email, or ID..."
                             value={filters.search}
                             onChange={(e) => handleFilterChange('search', e.target.value)}
                         />
@@ -345,6 +346,7 @@ const Students = () => {
                     <table className="table">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -364,6 +366,7 @@ const Students = () => {
                             ) : (
                                 paginatedStudents.map((student) => (
                                     <tr key={student.id}>
+                                        <td>{student.student_code || student.id}</td>
                                         <td>{student.name}</td>
                                         <td>{student.email}</td>
                                         <td>{student.phone || '-'}</td>

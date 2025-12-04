@@ -21,7 +21,8 @@ def get_students():
     if search:
         query = query.filter(
             (Student.name.ilike(f'%{search}%')) |
-            (Student.email.ilike(f'%{search}%'))
+            (Student.email.ilike(f'%{search}%')) |
+            (Student.student_code.ilike(f'%{search}%'))
         )
     
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -79,6 +80,7 @@ def create_student():
             return jsonify({'error': 'Batch not found'}), 404
     
     student = Student(
+        student_code=data.get('student_code', f"STUD-{int(datetime.utcnow().timestamp())}"),
         name=data['name'],
         email=data['email'],
         phone=data.get('phone'),
@@ -120,6 +122,15 @@ def update_student(id):
     
     data = request.get_json()
     
+    data = request.get_json()
+    
+    if data.get('student_code'):
+        # Check uniqueness if changed
+        existing = Student.query.filter_by(student_code=data['student_code']).first()
+        if existing and existing.id != id:
+            return jsonify({'error': 'Student Code already exists'}), 400
+        student.student_code = data['student_code']
+
     if data.get('name'):
         student.name = data['name']
     if data.get('email'):

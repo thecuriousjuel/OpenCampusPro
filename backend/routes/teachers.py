@@ -13,17 +13,20 @@ def get_teachers():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     search = request.args.get('search', '')
+    specialization = request.args.get('specialization', '')
     
-    current_app.logger.info(f"Fetching teachers - Page: {page}, Per page: {per_page}, Search: '{search}'")
+    current_app.logger.info(f"Fetching teachers - Page: {page}, Per page: {per_page}, Search: '{search}', Spec: '{specialization}'")
     
     query = Teacher.query
     
     if search:
         query = query.filter(
             (Teacher.name.ilike(f'%{search}%')) |
-            (Teacher.email.ilike(f'%{search}%')) |
-            (Teacher.specialization.ilike(f'%{search}%'))
+            (Teacher.email.ilike(f'%{search}%'))
         )
+    
+    if specialization:
+        query = query.filter(Teacher.specialization == specialization)
     
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
     
@@ -72,6 +75,7 @@ def create_teacher():
         return jsonify({'error': 'Email already exists'}), 400
     
     teacher = Teacher(
+        employee_id=data.get('employee_id', f"TCH-{int(datetime.utcnow().timestamp())}"),
         name=data['name'],
         email=data['email'],
         phone=data.get('phone'),
@@ -111,6 +115,13 @@ def update_teacher(id):
     
     data = request.get_json()
     
+    if data.get('employee_id'):
+        # Check uniqueness if changed
+        existing = Teacher.query.filter_by(employee_id=data['employee_id']).first()
+        if existing and existing.id != id:
+            return jsonify({'error': 'Employee ID already exists'}), 400
+        teacher.employee_id = data['employee_id']
+        
     if data.get('name'):
         teacher.name = data['name']
     if data.get('email'):

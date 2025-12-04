@@ -16,16 +16,9 @@ def clear_database():
     """Clear all existing data"""
     with app.app_context():
         print("Clearing existing data...")
-        Mark.query.delete()
-        Fee.query.delete()
-        Attendance.query.delete()
-        Batch.query.delete()
-        Course.query.delete()
-        Teacher.query.delete()
-        Student.query.delete()
-        User.query.delete()
-        db.session.commit()
-        print("Database cleared!")
+        db.drop_all()
+        db.create_all()
+        print("Database cleared and recreated!")
 
 def seed_courses(count=5):
     """Create sample courses"""
@@ -63,6 +56,7 @@ def seed_students(count=50):
     print(f"Creating {count} students...")
     for i in range(count):
         student = Student(
+            student_code=f"STUD-{1000+i+1:04d}",
             name=fake.name(),
             email=f"student{i+1}@{fake.free_email_domain()}",
             phone=fake.phone_number()[:15],
@@ -89,6 +83,7 @@ def seed_teachers(count=50):
     print(f"Creating {count} teachers...")
     for i in range(count):
         teacher = Teacher(
+            employee_id=f"TEAC-{1000+i+1:04d}",
             name=fake.name(),
             email=f"teacher{i+1}@mycampuspro.edu",
             phone=fake.phone_number()[:15],

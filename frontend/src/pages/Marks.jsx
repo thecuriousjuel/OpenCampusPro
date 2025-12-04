@@ -84,7 +84,8 @@ const Marks = () => {
             // Client-side student search filter
             if (searchStudent) {
                 filteredMarks = filteredMarks.filter(mark =>
-                    mark.student_name.toLowerCase().includes(searchStudent.toLowerCase())
+                    mark.student_name.toLowerCase().includes(searchStudent.toLowerCase()) ||
+                    String(mark.student_code || mark.student_id).toLowerCase().includes(searchStudent.toLowerCase())
                 );
             }
 
@@ -212,7 +213,7 @@ const Marks = () => {
                         <input
                             type="text"
                             className="form-input"
-                            placeholder="Type student name..."
+                            placeholder="Search by name or ID..."
                             value={searchStudent}
                             onChange={(e) => setSearchStudent(e.target.value)}
                         />
@@ -225,6 +226,7 @@ const Marks = () => {
                     <table className="table">
                         <thead>
                             <tr>
+                                <th>Student ID</th>
                                 <th>Student Name</th>
                                 <th>Batch</th>
                                 <th>Course</th>
@@ -239,6 +241,7 @@ const Marks = () => {
                             ) : (
                                 currentMarks.map((mark) => (
                                     <tr key={mark.id} className={mark.status === 'PASSED' ? 'marks-row-passed' : 'marks-row-failed'}>
+                                        <td>{mark.student_code || mark.student_id}</td>
                                         <td>{mark.student_name}</td>
                                         <td>{mark.batch_name}</td>
                                         <td>{mark.course_name}</td>

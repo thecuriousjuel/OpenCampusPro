@@ -10,6 +10,8 @@ const Fees = () => {
     const { showSuccess, showError } = useNotification();
     const [fees, setFees] = useState([]);
     const [students, setStudents] = useState([]);
+    const [batches, setBatches] = useState([]);
+    const [selectedBatch, setSelectedBatch] = useState('');
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [filter, setFilter] = useState('all');
@@ -29,6 +31,7 @@ const Fees = () => {
     useEffect(() => {
         fetchFees();
         fetchStudents();
+        fetchBatches();
     }, [filter]);
 
     // Reset to page 1 when filter changes
@@ -53,11 +56,23 @@ const Fees = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch(`${API_URL}/students?per_page=100`, {
+            const response = await fetch(`${API_URL}/students?per_page=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
             setStudents(data.students || []);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchBatches = async () => {
+        try {
+            const response = await fetch(`${API_URL}/batches?per_page=100`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            setBatches(data.batches || []);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -153,6 +168,7 @@ const Fees = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         setFormData({ student_id: '', amount: '', due_date: '', description: '' });
+        setSelectedBatch('');
     };
 
     const totalAmount = fees.reduce((sum, fee) => sum + fee.amount, 0);
@@ -206,7 +222,8 @@ const Fees = () => {
                     <table className="table">
                         <thead>
                             <tr>
-                                <th>Student</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
                                 <th>Amount</th>
                                 <th>Due Date</th>
                                 <th>Paid Date</th>
@@ -220,6 +237,7 @@ const Fees = () => {
                             ) : (
                                 currentFees.map((fee) => (
                                     <tr key={fee.id}>
+                                        <td>{fee.student_code || fee.student_id}</td>
                                         <td>{fee.student_name}</td>
                                         <td>{formatINR(fee.amount)}</td>
                                         <td>{fee.due_date ? new Date(fee.due_date).toLocaleDateString() : '-'}</td>
@@ -299,13 +317,33 @@ const Fees = () => {
             <Modal isOpen={showModal} onClose={handleCloseModal} title="Add Fee Record">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
+                        <label className="form-label">Batch *</label>
+                        <select className="form-select" value={selectedBatch}
+                            onChange={(e) => {
+                                setSelectedBatch(e.target.value);
+                                setFormData({ ...formData, student_id: '' });
+                            }} required>
+                            <option value="">Select Batch</option>
+                            {batches.map(batch => (
+                                <option key={batch.id} value={batch.id}>{batch.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-group">
                         <label className="form-label">Student *</label>
                         <select className="form-select" value={formData.student_id}
-                            onChange={(e) => setFormData({ ...formData, student_id: e.target.value })} required>
+                            onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                            required
+                            disabled={!selectedBatch}
+                        >
                             <option value="">Select Student</option>
-                            {students.map(student => (
-                                <option key={student.id} value={student.id}>{student.name}</option>
-                            ))}
+                            {students
+                                .filter(s => !selectedBatch || s.batch_id === parseInt(selectedBatch))
+                                .map(student => (
+                                    <option key={student.id} value={student.id}>
+                                        {student.student_code || student.id} - {student.name}
+                                    </option>
+                                ))}
                         </select>
                     </div>
                     <div className="form-group">

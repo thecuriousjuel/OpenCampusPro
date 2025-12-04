@@ -33,6 +33,7 @@ class Student(db.Model):
     __tablename__ = 'students'
     
     id = db.Column(db.Integer, primary_key=True)
+    student_code = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
@@ -50,6 +51,7 @@ class Student(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'student_code': self.student_code,
             'name': self.name,
             'email': self.email,
             'phone': self.phone,
@@ -64,6 +66,7 @@ class Teacher(db.Model):
     __tablename__ = 'teachers'
     
     id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
@@ -76,6 +79,7 @@ class Teacher(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'employee_id': self.employee_id,
             'name': self.name,
             'email': self.email,
             'phone': self.phone,
@@ -147,6 +151,7 @@ class Attendance(db.Model):
         return {
             'id': self.id,
             'student_id': self.student_id,
+            'student_code': self.student.student_code if self.student else None,
             'student_name': self.student.name if self.student else None,
             'batch_id': self.batch_id,
             'batch_name': self.batch.name if self.batch else None,
@@ -169,6 +174,7 @@ class Fee(db.Model):
         return {
             'id': self.id,
             'student_id': self.student_id,
+            'student_code': self.student.student_code if self.student else None,
             'student_name': self.student.name if self.student else None,
             'amount': self.amount,
             'due_date': self.due_date.isoformat() if self.due_date else None,
@@ -191,6 +197,7 @@ class Mark(db.Model):
         return {
             'id': self.id,
             'student_id': self.student_id,
+            'student_code': self.student.student_code if self.student else None,
             'student_name': self.student.name if self.student else None,
             'batch_id': self.batch_id,
             'batch_name': self.batch.name if self.batch else None,
