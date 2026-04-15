@@ -76,6 +76,54 @@ npm run dev
 
 The frontend will be available at `http://localhost:5173`
 
+## 🐳 Docker Guide (Build, Export, and Run)
+
+You can containerize the entire system and easily run it anywhere or export the images to share.
+
+### 1. Building the Images
+
+Run the following commands from the root directory to build the images for both frontend and backend manually:
+
+```bash
+docker build -t sms-backend ./backend
+docker build -t sms-frontend ./frontend
+```
+
+*(Alternatively, you can just use `docker-compose up --build -d` to build and run them all at once!)*
+
+### 2. Exporting the Images (Optional)
+
+If you need to deploy the application on a completely different machine, you can export these images as `.tar` files right after building them:
+
+```bash
+docker save -o sms-backend.tar sms-backend
+docker save -o sms-frontend.tar sms-frontend
+```
+
+### 3. Loading and Running Exported Images
+
+When you transfer the `.tar` files to your target machine, import them into Docker:
+
+```bash
+docker load -i sms-backend.tar
+docker load -i sms-frontend.tar
+```
+
+Once loaded, start the application containers directly with these commands:
+
+**Start the API (Backend):**
+```bash
+docker run -d --name my-sms-backend -p 5001:5001 -v sms_backend_data:/instance sms-backend
+```
+*(This maps the port to 5001 and creates a volume to preserve your SQLite database.)*
+
+**Start the Website (Frontend):**
+```bash
+docker run -d --name my-sms-frontend -p 5173:5173 sms-frontend
+```
+
+You can then view the user interface at `http://localhost:5173`!
+
 ## 📁 Project Structure
 
 ```
