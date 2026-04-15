@@ -83,7 +83,7 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     xdg-open "http://localhost:5173"
 fi
 
-echo -e "${GREEN}Application is running!${NC}"
+echo -e "${GREEN}Application is running! You can open it here: http://localhost:5173${NC}"
 echo "Press Ctrl+C to stop the servers."
 
 # Handle cleanup

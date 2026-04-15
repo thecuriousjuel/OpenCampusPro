@@ -71,7 +71,7 @@ Write-Host "Opening Application..." -ForegroundColor Cyan
 Start-Sleep -Seconds 5
 Start-Process "http://localhost:5173"
 
-Write-Host "Application is running!" -ForegroundColor Green
+Write-Host "Application is running! You can open it here: http://localhost:5173" -ForegroundColor Green
 Write-Host "Press Enter to stop the servers..."
 
 Read-Host
