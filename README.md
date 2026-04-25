@@ -1,5 +1,7 @@
 # OpenCampusPro
 
+![OpenCampusPro Demo](./screenshots/demo.webp)
+
 A comprehensive web-based management system built with Flask (Backend) and React (Frontend). OpenCampusPro provides tools for managing students, teachers, courses, batches, attendance, and fees.
 
 ## 📋 Features
