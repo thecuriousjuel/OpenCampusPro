@@ -34,7 +34,7 @@ const Login = () => {
             </div>
             <div className="auth-card card-glass slide-up">
                 <div className="auth-header">
-                    <h1 className="auth-logo">🎓 MyCampusPro</h1>
+                    <h1 className="auth-logo">🎓 OpenCampusPro</h1>
                     <h2 className="auth-title">Welcome Back</h2>
                     <p className="auth-subtitle">Sign in to your account</p>
                 </div>

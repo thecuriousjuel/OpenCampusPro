@@ -66,7 +66,7 @@ with app.app_context():
 def index():
     return jsonify(
         {
-            "message": "Student Management System API",
+            "message": "OpenCampusPro API",
             "version": "1.0.0",
             "status": "running",
         }

@@ -1,6 +1,6 @@
-# Student Management System
+# OpenCampusPro
 
-A comprehensive web-based Student Management System built with Flask (Backend) and React (Frontend). This system provides tools for managing students, teachers, courses, batches, attendance, and fees.
+A comprehensive web-based management system built with Flask (Backend) and React (Frontend). OpenCampusPro provides tools for managing students, teachers, courses, batches, attendance, and fees.
 
 ## 📋 Features
 
