@@ -1,0 +1,113 @@
+<mxfile host="app.diagrams.net" version="24.2.5" type="device">
+  <diagram name="Attendance Management" id="attendance-flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Attendance Management Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="start" value="START" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="80" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="viewPage" value="Navigate to Attendance Page&#xa;(Protected Route)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="160" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="start" target="viewPage" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Fetch data -->
+        <mxCell id="fetchData" value="GET /api/attendance&#xa;GET /api/batches (for filter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="460" y="250" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="viewPage" target="fetchData" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Display attendance -->
+        <mxCell id="displayList" value="Display Attendance List&#xa;(filterable by Batch &amp; Date)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="340" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fetchData" target="displayList" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Action -->
+        <mxCell id="chooseAction" value="User Chooses Action" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="455" y="430" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="displayList" target="chooseAction" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== MARK ATTENDANCE (Bulk) ===== -->
+        <mxCell id="markBulk" value="MARK ATTENDANCE (Bulk)" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=center;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="400" width="220" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="eMarkBulk" value="Mark Attendance" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="markBulk" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="selectBatch" value="Select Batch &amp; Date" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="730" y="455" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eSelBatch" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="markBulk" target="selectBatch" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="fetchStudents" value="Load Students for Batch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="730" y="530" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eFetch" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="selectBatch" target="fetchStudents" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="markEach" value="Mark Each Student:&#xa;Present / Absent / Late" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="730" y="610" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eMark" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fetchStudents" target="markEach" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="submitBulk" value="POST /api/attendance (each)&#xa;Check for Duplicate Record&#xa;(same student, batch, date)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="730" y="700" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eSubmit" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="markEach" target="submitBulk" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="dupCheck" value="Duplicate Entry?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="730" y="800" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eDup" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="submitBulk" target="dupCheck" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="dupErr" value="400 - Record Already Exists" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="960" y="810" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eDupYes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="dupCheck" target="dupErr" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="insertAtt" value="INSERT Attendance Record&#xa;Return 201 Created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="730" y="895" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eInsert" value="No" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="dupCheck" target="insertAtt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== UPDATE ATTENDANCE ===== -->
+        <mxCell id="updateAtt" value="UPDATE ATTENDANCE STATUS" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=center;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="230" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="eUpdate" value="Update" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="updateAtt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="changeStatus" value="Change Status on Existing Record&#xa;(Present / Absent / Late)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="185" y="455" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eChange" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="updateAtt" target="changeStatus" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="putAtt" value="PUT /api/attendance/{id}&#xa;{status}&#xa;UPDATE DB Record" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="185" y="545" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ePut" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="changeStatus" target="putAtt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== DELETE ATTENDANCE ===== -->
+        <mxCell id="delAtt" value="DELETE /api/attendance/{id}&#xa;Remove Record&#xa;Return 200 OK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="185" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eDel" value="Delete" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="delAtt" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="END" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="1000" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eEnd1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="insertAtt" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="eEnd2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="putAtt" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="eEnd3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="delAtt" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,124 @@
+<mxfile host="app.diagrams.net" version="24.2.5" type="device">
+  <diagram name="Course Management" id="course-flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Course Management Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="20" width="460" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="START" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="80" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- View Page -->
+        <mxCell id="viewPage" value="Navigate to Courses Page&#xa;(Protected Route - JWT Required)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="160" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="start" target="viewPage" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Fetch Courses -->
+        <mxCell id="fetchCourses" value="GET /api/courses&#xa;Display Course List" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="460" y="250" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="viewPage" target="fetchCourses" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Display List -->
+        <mxCell id="displayList" value="Display Course List&#xa;(Name, Code, Credits, Duration)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="340" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fetchCourses" target="displayList" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Choose Action -->
+        <mxCell id="chooseAction" value="User Chooses Action" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="455" y="430" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="displayList" target="chooseAction" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== ADD COURSE BRANCH ===== -->
+        <mxCell id="addForm" value="Show Add Course Form&#xa;(Name, Code, Description,&#xa;Credits, Duration)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="750" y="400" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="eAdd" value="Add" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="addForm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Validate -->
+        <mxCell id="validateAdd" value="Validate Required Fields&#xa;(Name &amp; Code required)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="750" y="510" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eValAdd" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="addForm" target="validateAdd" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="valErr" value="Show Validation Error" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="990" y="520" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eValNo" value="Invalid" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="validateAdd" target="valErr" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Check code unique -->
+        <mxCell id="checkCode" value="Course Code Already Exists?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="750" y="610" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eCheckCode" value="Valid" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="validateAdd" target="checkCode" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="codeErr" value="400 - Course Code Already Exists" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="990" y="618" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eCodeErr" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="checkCode" target="codeErr" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- POST -->
+        <mxCell id="postCourse" value="POST /api/courses&#xa;{name, code, description,&#xa;credits, duration}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="750" y="710" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ePost" value="No" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="checkCode" target="postCourse" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="addOk" value="INSERT DB Record&#xa;Return 201 Created&#xa;Show Success Toast" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="750" y="810" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eAddOk" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="postCourse" target="addOk" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== EDIT COURSE BRANCH ===== -->
+        <mxCell id="editForm" value="Pre-fill Edit Form with&#xa;Existing Course Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="460" y="560" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eEdit" value="Edit" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="editForm" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="putCourse" value="PUT /api/courses/{id}&#xa;{updated fields}&#xa;UPDATE DB Record&#xa;Return 200 OK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="460" y="650" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ePut" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="editForm" target="putCourse" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- ===== DELETE COURSE BRANCH ===== -->
+        <mxCell id="hasBatches" value="Course Has Batches?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="205" y="430" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eDel" value="Delete" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="chooseAction" target="hasBatches" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="cantDel" value="400 - Cannot Delete&#xa;Course has associated Batches" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="30" y="438" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eCantDel" value="Yes" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="hasBatches" target="cantDel" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="confirmDel" value="Show Confirmation Dialog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="205" y="530" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eConfirm" value="No" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="hasBatches" target="confirmDel" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="delCourse" value="DELETE /api/courses/{id}&#xa;Return 200 OK&#xa;Show Success Toast" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="205" y="610" width="210" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="eDelOk" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="confirmDel" target="delCourse" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="END" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="940" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eEnd1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="addOk" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="eEnd2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="putCourse" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="eEnd3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="delCourse" target="end" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

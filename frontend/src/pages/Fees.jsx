@@ -181,7 +181,15 @@ const Fees = () => {
     const currentFees = fees.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(fees.length / itemsPerPage);
 
-    if (loading) return <div className="page-container"><div className="spinner"></div></div>;
+    if (loading) {
+        return (
+            <div className="page-container">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                    <div className="spinner"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="page-container fade-in">

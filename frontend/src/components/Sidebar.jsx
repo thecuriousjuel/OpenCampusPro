@@ -58,6 +58,9 @@ const Sidebar = () => {
                     <span className="logout-icon">{isLogoutHovered ? '🚶‍♂️' : '🚪'}</span>
                     <span className="logout-label">Logout</span>
                 </button>
+                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Built with ❤️ by Biswajit
+                </div>
             </div>
         </div>
     );

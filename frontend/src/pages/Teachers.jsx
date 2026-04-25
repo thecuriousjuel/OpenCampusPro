@@ -13,6 +13,8 @@ const Teachers = () => {
     const [showModal, setShowModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
+    const [viewingTeacher, setViewingTeacher] = useState(null);
+    const [showBatchesModal, setShowBatchesModal] = useState(false);
     const [search, setSearch] = useState('');
     const [specializationFilter, setSpecializationFilter] = useState('');
     const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, teacherId: null });
@@ -113,6 +115,11 @@ const Teachers = () => {
         setShowModal(true);
     };
 
+    const handleViewBatches = (teacher) => {
+        setViewingTeacher(teacher);
+        setShowBatchesModal(true);
+    };
+
     const handleDelete = async () => {
         const id = confirmDialog.teacherId;
         setConfirmDialog({ isOpen: false, teacherId: null });
@@ -160,7 +167,13 @@ const Teachers = () => {
     const totalPages = Math.ceil(teachers.length / itemsPerPage);
 
     if (loading) {
-        return <div className="page-container"><div className="spinner"></div></div>;
+        return (
+            <div className="page-container">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                    <div className="spinner"></div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -213,6 +226,7 @@ const Teachers = () => {
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Specialization</th>
+                                <th>Assigned Batches</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -228,9 +242,22 @@ const Teachers = () => {
                                         <td>{teacher.phone || '-'}</td>
                                         <td>{teacher.specialization || '-'}</td>
                                         <td>
+                                            {teacher.batches && teacher.batches.length > 0 ? (
+                                                <button 
+                                                    className="btn btn-secondary btn-sm" 
+                                                    onClick={() => handleViewBatches(teacher)}
+                                                >
+                                                    {teacher.batches.length} Batch(es)
+                                                </button>
+                                            ) : (
+                                                <span className="text-muted">None</span>
+                                            )}
+                                        </td>
+                                        <td>
                                             <div className="flex gap-sm">
-                                                <button className="btn btn-secondary btn-sm" onClick={() => handleEdit(teacher)}>✏️</button>
-                                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(teacher.id)}>🗑️</button>
+                                                <button className="btn btn-secondary btn-sm" onClick={() => handleViewBatches(teacher)} title="View Batches">📚</button>
+                                                <button className="btn btn-secondary btn-sm" onClick={() => handleEdit(teacher)} title="Edit">✏️</button>
+                                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(teacher.id)} title="Delete">🗑️</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -322,6 +349,34 @@ const Teachers = () => {
                         <button type="submit" className="btn btn-primary">{editMode ? 'Update' : 'Create'}</button>
                     </div>
                 </form>
+            </Modal>
+
+            <Modal isOpen={showBatchesModal} onClose={() => setShowBatchesModal(false)} title={`Batches Assigned to ${viewingTeacher?.name}`}>
+                <div className="table-container">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Batch Name</th>
+                                <th>Course</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {!viewingTeacher?.batches || viewingTeacher.batches.length === 0 ? (
+                                <tr><td colSpan="2" className="text-center text-muted">No batches currently assigned.</td></tr>
+                            ) : (
+                                viewingTeacher.batches.map((batch) => (
+                                    <tr key={batch.id}>
+                                        <td>{batch.name}</td>
+                                        <td>{batch.course_name || '-'}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="modal-footer mt-md">
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowBatchesModal(false)}>Close</button>
+                </div>
             </Modal>
 
             <ConfirmDialog
