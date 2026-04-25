@@ -31,7 +31,7 @@ const Sidebar = () => {
     return (
         <div className="sidebar">
             <div className="sidebar-header">
-                <h2 className="sidebar-logo">🎓 MyCampusPro</h2>
+                <h2 className="sidebar-logo">🎓 OpenCampusPro</h2>
             </div>
 
             <nav className="sidebar-nav">
