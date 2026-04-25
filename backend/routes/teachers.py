@@ -190,6 +190,7 @@ def update_teacher(id):
 def delete_teacher(id):
     """Delete a teacher"""
     from flask import current_app
+    from models import Batch
 
     current_app.logger.info(f"Deleting teacher with ID: {id}")
     teacher = Teacher.query.get(id)
@@ -197,6 +198,17 @@ def delete_teacher(id):
     if not teacher:
         current_app.logger.warning(f"Teacher deletion failed: ID {id} not found")
         return jsonify({"error": "Teacher not found"}), 404
+
+    # Guard: block deletion if teacher still has batches assigned
+    assigned_batches = Batch.query.filter_by(teacher_id=id).count()
+    if assigned_batches > 0:
+        current_app.logger.warning(
+            f"Teacher deletion blocked: Teacher ID {id} has {assigned_batches} assigned batch(es)"
+        )
+        return jsonify({
+            "error": f"Cannot delete teacher '{teacher.name}' — they are assigned to "
+                     f"{assigned_batches} batch(es). Please reassign or delete those batches first."
+        }), 400
 
     try:
         teacher_name = teacher.name

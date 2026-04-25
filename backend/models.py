@@ -96,6 +96,7 @@ class Teacher(db.Model):
             "phone": self.phone,
             "specialization": self.specialization,
             "hire_date": self.hire_date.isoformat() if self.hire_date else None,
+            "batches": [{"id": b.id, "name": b.name, "course_name": b.course.name if b.course else None} for b in self.batches],
         }
 
 

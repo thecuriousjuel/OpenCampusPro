@@ -178,7 +178,15 @@ const Marks = () => {
     const currentMarks = marks.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(marks.length / itemsPerPage);
 
-    if (loading) return <div className="page-container"><div className="spinner"></div></div>;
+    if (loading) {
+        return (
+            <div className="page-container">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+                    <div className="spinner"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="page-container fade-in">
@@ -240,7 +248,7 @@ const Marks = () => {
                                 <tr><td colSpan="6" className="text-center text-muted">No marks found</td></tr>
                             ) : (
                                 currentMarks.map((mark) => (
-                                    <tr key={mark.id} className={mark.status === 'PASSED' ? 'marks-row-passed' : 'marks-row-failed'}>
+                                    <tr key={mark.id}>
                                         <td>{mark.student_code || mark.student_id}</td>
                                         <td>{mark.student_name}</td>
                                         <td>{mark.batch_name}</td>

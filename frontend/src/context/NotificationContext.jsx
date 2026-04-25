@@ -14,7 +14,7 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
-    const showToast = (message, type = 'success', duration = 3000) => {
+    const showToast = (message, type = 'success', duration = 5000) => {
         const id = Date.now();
         setToasts(prev => [...prev, { id, message, type, duration }]);
     };

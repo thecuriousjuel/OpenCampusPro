@@ -174,6 +174,7 @@ def update_batch(id):
 def delete_batch(id):
     """Delete a batch"""
     from flask import current_app
+    from models import Student
 
     current_app.logger.info(f"Deleting batch with ID: {id}")
     batch = Batch.query.get(id)
@@ -181,6 +182,17 @@ def delete_batch(id):
     if not batch:
         current_app.logger.warning(f"Batch deletion failed: ID {id} not found")
         return jsonify({"error": "Batch not found"}), 404
+
+    # Guard: block deletion if students are still enrolled in this batch
+    enrolled_students = Student.query.filter_by(batch_id=id).count()
+    if enrolled_students > 0:
+        current_app.logger.warning(
+            f"Batch deletion blocked: Batch ID {id} has {enrolled_students} enrolled student(s)"
+        )
+        return jsonify({
+            "error": f"Cannot delete batch '{batch.name}' — {enrolled_students} student(s) are "
+                     f"still enrolled in it. Please reassign or remove them first."
+        }), 400
 
     try:
         batch_name = batch.name

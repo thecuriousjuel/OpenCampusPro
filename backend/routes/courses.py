@@ -151,6 +151,7 @@ def update_course(id):
 def delete_course(id):
     """Delete a course"""
     from flask import current_app
+    from models import Batch
 
     current_app.logger.info(f"Deleting course with ID: {id}")
     course = Course.query.get(id)
@@ -158,6 +159,17 @@ def delete_course(id):
     if not course:
         current_app.logger.warning(f"Course deletion failed: ID {id} not found")
         return jsonify({"error": "Course not found"}), 404
+
+    # Guard: block deletion if any batches are still linked to this course
+    linked_batches = Batch.query.filter_by(course_id=id).count()
+    if linked_batches > 0:
+        current_app.logger.warning(
+            f"Course deletion blocked: Course ID {id} has {linked_batches} linked batch(es)"
+        )
+        return jsonify({
+            "error": f"Cannot delete course '{course.name}' — it has {linked_batches} batch(es) "
+                     f"linked to it. Please delete those batches first."
+        }), 400
 
     try:
         course_name = course.name
