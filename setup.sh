@@ -24,14 +24,46 @@ open_terminal() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         osascript -e "tell app \"Terminal\" to do script \"$exec_cmd\"" > /dev/null
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if command_exists gnome-terminal; then
+        if command_exists ptyxis; then
+            ptyxis --new-window -- bash -c "$exec_cmd" &
+        elif command_exists gnome-terminal; then
             gnome-terminal --title="$title" -- bash -c "$exec_cmd"
+        elif command_exists konsole; then
+            konsole --noclose -e bash -c "$exec_cmd" &
+        elif command_exists xfce4-terminal; then
+            xfce4-terminal --title="$title" --hold -e "bash -c '$exec_cmd'" &
+        elif command_exists mate-terminal; then
+            mate-terminal --title="$title" -e "bash -c '$exec_cmd'" &
+        elif command_exists lxterminal; then
+            lxterminal --title="$title" -e "bash -c '$exec_cmd'" &
+        elif command_exists tilix; then
+            tilix -e "bash -c '$exec_cmd'" &
+        elif command_exists terminator; then
+            terminator --title="$title" -e "bash -c '$exec_cmd'" &
+        elif command_exists alacritty; then
+            alacritty --title "$title" -e bash -c "$exec_cmd" &
+        elif command_exists kitty; then
+            kitty --title "$title" bash -c "$exec_cmd" &
+        elif command_exists wezterm; then
+            wezterm start -- bash -c "$exec_cmd" &
+        elif command_exists foot; then
+            foot --title="$title" bash -c "$exec_cmd" &
+        elif command_exists sakura; then
+            sakura --title "$title" -e "bash -c '$exec_cmd'" &
+        elif command_exists st; then
+            st -t "$title" -e bash -c "$exec_cmd" &
         elif command_exists x-terminal-emulator; then
             x-terminal-emulator -e "bash -c '$exec_cmd'" &
         elif command_exists xterm; then
             xterm -title "$title" -e "bash -c '$exec_cmd'" &
+        elif command_exists tmux; then
+            echo -e "${BLUE}No GUI terminal found. Using tmux session '$title'.${NC}"
+            tmux new-session -d -s "$title" "bash -c '$exec_cmd'"
+        elif command_exists screen; then
+            echo -e "${BLUE}No GUI terminal found. Using screen session '$title'.${NC}"
+            screen -dmS "$title" bash -c "$exec_cmd"
         else
-            echo -e "${RED}No supported terminal emulator found. Running in background.${NC}"
+            echo -e "${RED}No supported terminal emulator or multiplexer found. Running in background.${NC}"
             eval "$cmd > /dev/null 2>&1 &"
         fi
     elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then

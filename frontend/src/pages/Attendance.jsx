@@ -51,7 +51,7 @@ const Attendance = () => {
             setAttendanceData(attendanceMap);
 
             // Fetch students for this batch
-            const studentsResponse = await fetch(`${API_URL}/students?per_page=100`, {
+            const studentsResponse = await fetch(`${API_URL}/students?per_page=100&batch_id=${selectedBatch}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const studentsData = await studentsResponse.json();
@@ -164,6 +164,7 @@ const Attendance = () => {
                         <div className="flex gap-sm">
                             <button className="btn btn-success btn-sm" onClick={() => markAll('present')}>✓ Mark All Present</button>
                             <button className="btn btn-danger btn-sm" onClick={() => markAll('absent')}>✗ Mark All Absent</button>
+                            <button className="btn btn-warning btn-sm" onClick={() => markAll('late')}>⏰ Mark All Late</button>
                         </div>
                     </div>
 
