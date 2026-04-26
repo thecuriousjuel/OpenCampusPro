@@ -42,10 +42,10 @@ if (Test-Path "venv\Scripts\Activate.ps1") {
 Write-Host "Installing backend dependencies..."
 pip install -r requirements.txt
 
-# Start Backend in background
-Write-Host "Starting Backend Server..."
-$BackendProcess = Start-Process -FilePath "python" -ArgumentList "app.py" -PassThru -WindowStyle Hidden
-Write-Host "Backend started (ID: $($BackendProcess.Id))" -ForegroundColor Green
+# Start Backend in new window
+Write-Host "Starting Backend Server in a new window..."
+$BackendProcess = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "`"`$host.ui.RawUI.WindowTitle = 'Backend'; .\venv\Scripts\Activate.ps1; python app.py`"" -PassThru
+Write-Host "Backend started in new window (ID: $($BackendProcess.Id))" -ForegroundColor Green
 
 Set-Location ..
 
@@ -58,13 +58,10 @@ if (-not (Test-Path "node_modules")) {
     npm install
 }
 
-# Start Frontend
-Write-Host "Starting Frontend Server..."
-# Using Start-Process for npm run dev might be tricky to kill later cleanly in PS without a separate window, 
-# but for simplicity we'll launch it. 
-# Note: 'npm run dev' usually runs a script. We might need 'cmd /c npm run dev' or similar.
-$FrontendProcess = Start-Process -FilePath "npm.cmd" -ArgumentList "run dev" -PassThru -WindowStyle Hidden
-Write-Host "Frontend started (ID: $($FrontendProcess.Id))" -ForegroundColor Green
+# Start Frontend in new window
+Write-Host "Starting Frontend Server in a new window..."
+$FrontendProcess = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "`"`$host.ui.RawUI.WindowTitle = 'Frontend'; npm run dev`"" -PassThru
+Write-Host "Frontend started in new window (ID: $($FrontendProcess.Id))" -ForegroundColor Green
 
 # Open Browser
 Write-Host "Opening Application..." -ForegroundColor Cyan
@@ -78,6 +75,6 @@ Read-Host
 
 # Cleanup
 Write-Host "Stopping servers..." -ForegroundColor Cyan
-Stop-Process -Id $BackendProcess.Id -ErrorAction SilentlyContinue
-Stop-Process -Id $FrontendProcess.Id -ErrorAction SilentlyContinue
+taskkill /PID $($BackendProcess.Id) /T /F 2>$null
+taskkill /PID $($FrontendProcess.Id) /T /F 2>$null
 Write-Host "Servers stopped." -ForegroundColor Green
