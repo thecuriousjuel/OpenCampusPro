@@ -6,7 +6,7 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Starting Student Management System Setup...${NC}"
+echo -e "${BLUE}Starting OpenCampusPro Setup...${NC}"
 
 # Function to check if a command exists
 command_exists() {
