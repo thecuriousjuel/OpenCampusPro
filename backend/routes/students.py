@@ -15,12 +15,16 @@ def get_students():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 10, type=int)
     search = request.args.get("search", "")
+    batch_id = request.args.get("batch_id", type=int)
 
     current_app.logger.info(
-        f"Fetching students - Page: {page}, Per page: {per_page}, Search: '{search}'"
+        f"Fetching students - Page: {page}, Per page: {per_page}, Search: '{search}', Batch ID: {batch_id}"
     )
 
     query = Student.query
+
+    if batch_id:
+        query = query.filter_by(batch_id=batch_id)
 
     if search:
         query = query.filter(

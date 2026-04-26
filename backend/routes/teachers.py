@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from models import db, Teacher, Student
 from datetime import datetime
+import random
 
 bp = Blueprint("teachers", __name__, url_prefix="/api/teachers")
 
@@ -87,10 +88,14 @@ def create_teacher():
         )
         return jsonify({"error": "Email already exists"}), 400
 
+    # Auto-generate a unique 5-digit employee_id
+    while True:
+        emp_id = f"TEACH-{random.randint(10000, 99999)}"
+        if not Teacher.query.filter_by(employee_id=emp_id).first():
+            break
+
     teacher = Teacher(
-        employee_id=data.get(
-            "employee_id", f"TCH-{int(datetime.utcnow().timestamp())}"
-        ),
+        employee_id=emp_id,
         name=data["name"],
         email=data["email"],
         phone=data.get("phone"),
@@ -136,13 +141,6 @@ def update_teacher(id):
         return jsonify({"error": "Teacher not found"}), 404
 
     data = request.get_json()
-
-    if data.get("employee_id"):
-        # Check uniqueness if changed
-        existing = Teacher.query.filter_by(employee_id=data["employee_id"]).first()
-        if existing and existing.id != id:
-            return jsonify({"error": "Employee ID already exists"}), 400
-        teacher.employee_id = data["employee_id"]
 
     if data.get("name"):
         teacher.name = data["name"]

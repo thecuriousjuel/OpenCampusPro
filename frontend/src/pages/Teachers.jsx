@@ -25,7 +25,6 @@ const Teachers = () => {
     const [itemsPerPage] = useState(10);
 
     const [formData, setFormData] = useState({
-        employee_id: '',
         name: '',
         email: '',
         phone: '',
@@ -37,7 +36,7 @@ const Teachers = () => {
 
         if (location.state?.openAddModal) {
             setEditMode(false);
-            setFormData({ employee_id: '', name: '', email: '', phone: '', specialization: '' });
+            setFormData({ name: '', email: '', phone: '', specialization: '' });
             setShowModal(true);
             // Clear state to prevent reopening on refresh
             window.history.replaceState({}, document.title);
@@ -105,7 +104,6 @@ const Teachers = () => {
     const handleEdit = (teacher) => {
         setSelectedTeacher(teacher);
         setFormData({
-            employee_id: teacher.employee_id || '',
             name: teacher.name,
             email: teacher.email,
             phone: teacher.phone || '',
@@ -157,7 +155,7 @@ const Teachers = () => {
         setShowModal(false);
         setEditMode(false);
         setSelectedTeacher(null);
-        setFormData({ employee_id: '', name: '', email: '', phone: '', specialization: '' });
+        setFormData({ name: '', email: '', phone: '', specialization: '' });
     };
 
     // Pagination logic
@@ -318,12 +316,6 @@ const Teachers = () => {
 
             <Modal isOpen={showModal} onClose={handleCloseModal} title={editMode ? 'Edit Teacher' : 'Add New Teacher'}>
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label className="form-label">Employee ID</label>
-                        <input type="text" className="form-input" value={formData.employee_id}
-                            onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                            placeholder="Auto-generated if empty" />
-                    </div>
                     <div className="form-group">
                         <label className="form-label">Name *</label>
                         <input type="text" className="form-input" value={formData.name}
