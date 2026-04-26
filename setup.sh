@@ -13,6 +13,35 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to open a new terminal window
+open_terminal() {
+    local title=$1
+    local cmd=$2
+    local dir=$(pwd)
+    
+    local exec_cmd="cd \"$dir\" && $cmd; echo; echo 'Press Enter to close...'; read"
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        osascript -e "tell app \"Terminal\" to do script \"$exec_cmd\"" > /dev/null
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command_exists gnome-terminal; then
+            gnome-terminal --title="$title" -- bash -c "$exec_cmd"
+        elif command_exists x-terminal-emulator; then
+            x-terminal-emulator -e "bash -c '$exec_cmd'" &
+        elif command_exists xterm; then
+            xterm -title "$title" -e "bash -c '$exec_cmd'" &
+        else
+            echo -e "${RED}No supported terminal emulator found. Running in background.${NC}"
+            eval "$cmd > /dev/null 2>&1 &"
+        fi
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        start "$title" bash -c "$exec_cmd"
+    else
+        echo -e "${RED}Unsupported OS for opening new terminals. Running in background.${NC}"
+        eval "$cmd > /dev/null 2>&1 &"
+    fi
+}
+
 # Check for Python
 if command_exists python3; then
     PYTHON_CMD=python3
@@ -51,11 +80,10 @@ source venv/bin/activate
 echo "Installing backend dependencies..."
 pip install -r requirements.txt
 
-# Start Backend in background
-echo "Starting Backend Server..."
-python app.py > /dev/null 2>&1 &
-BACKEND_PID=$!
-echo -e "${GREEN}Backend started (PID: $BACKEND_PID)${NC}"
+# Start Backend in new window
+echo "Starting Backend Server in a new window..."
+open_terminal "Backend" "source venv/bin/activate && $PYTHON_CMD app.py"
+echo -e "${GREEN}Backend started.${NC}"
 
 cd ..
 
@@ -68,11 +96,10 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
-# Start Frontend
-echo "Starting Frontend Server..."
-npm run dev > /dev/null 2>&1 &
-FRONTEND_PID=$!
-echo -e "${GREEN}Frontend started (PID: $FRONTEND_PID)${NC}"
+# Start Frontend in new window
+echo "Starting Frontend Server in a new window..."
+open_terminal "Frontend" "npm run dev"
+echo -e "${GREEN}Frontend started.${NC}"
 
 # Open Browser
 echo -e "${BLUE}Opening Application...${NC}"
@@ -84,16 +111,15 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 fi
 
 echo -e "${GREEN}Application is running! You can open it here: http://localhost:5173${NC}"
-echo "Press Ctrl+C to stop the servers."
+echo "Press Enter to exit the setup script..."
 
 # Handle cleanup
 cleanup() {
-    echo -e "\n${BLUE}Stopping servers...${NC}"
-    kill $BACKEND_PID
-    kill $FRONTEND_PID
+    echo -e "\n${BLUE}Setup script terminating. Please close the opened terminal windows to stop the servers.${NC}"
     exit
 }
 
 trap cleanup SIGINT
 
-wait
+read -p ""
+cleanup
