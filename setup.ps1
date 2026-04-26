@@ -1,4 +1,4 @@
-Write-Host "Starting Student Management System Setup..." -ForegroundColor Cyan
+Write-Host "Starting OpenCampusPro Setup..." -ForegroundColor Cyan
 
 # Check for Python
 if (Get-Command python -ErrorAction SilentlyContinue) {
