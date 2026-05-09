@@ -35,7 +35,7 @@ const Students = () => {
         email: '',
         phone: '',
         address: '',
-        status: 'active',
+        status: 'inactive',
         batch_id: ''
     });
 
@@ -228,12 +228,12 @@ const Students = () => {
         setShowModal(false);
         setEditMode(false);
         setSelectedStudent(null);
-        setFormData({ name: '', email: '', phone: '', address: '', status: 'active', batch_id: '' });
+        setFormData({ name: '', email: '', phone: '', address: '', status: 'inactive', batch_id: '' });
     };
 
     const handleAddNew = () => {
         setEditMode(false);
-        setFormData({ name: '', email: '', phone: '', address: '', status: 'active', batch_id: '' });
+        setFormData({ name: '', email: '', phone: '', address: '', status: 'inactive', batch_id: '' });
         setShowModal(true);
     };
 
@@ -502,7 +502,15 @@ const Students = () => {
                         <select
                             className="form-select"
                             value={formData.batch_id}
-                            onChange={(e) => setFormData({ ...formData, batch_id: e.target.value })}
+                            onChange={(e) => {
+                                const newBatchId = e.target.value;
+                                const updatedData = { ...formData, batch_id: newBatchId };
+                                // Auto-activate when a batch is assigned and status is inactive
+                                if (newBatchId && formData.status === 'inactive') {
+                                    updatedData.status = 'active';
+                                }
+                                setFormData(updatedData);
+                            }}
                         >
                             <option value="">No Batch</option>
                             {batches.map(batch => (
