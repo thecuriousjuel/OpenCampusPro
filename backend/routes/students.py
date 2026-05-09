@@ -100,6 +100,11 @@ def create_student():
             )
             return jsonify({"error": "Batch not found"}), 404
 
+    # Determine default status based on batch assignment:
+    # - If a batch is provided, default to 'active'
+    # - If no batch is provided, default to 'inactive'
+    default_status = "active" if data.get("batch_id") else "inactive"
+
     student = Student(
         student_code=data.get(
             "student_code", f"STUD-{int(datetime.utcnow().timestamp())}"
@@ -108,7 +113,7 @@ def create_student():
         email=data["email"],
         phone=data.get("phone"),
         address=data.get("address"),
-        status=data.get("status", "active"),
+        status=data.get("status", default_status),
         batch_id=data.get("batch_id"),
     )
 
@@ -201,6 +206,13 @@ def update_student(id):
                 )
                 return jsonify({"error": "Batch not found"}), 404
             student.batch_id = data["batch_id"]
+
+            # Auto-activate student when a batch is assigned (only if currently inactive)
+            if student.status == "inactive":
+                student.status = "active"
+                current_app.logger.info(
+                    f"Student ID {id} auto-activated due to batch assignment"
+                )
         else:
             # Allow removing batch assignment
             student.batch_id = None
